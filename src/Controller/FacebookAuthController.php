@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\Controller\SimpleFbConnectController.
- */
-
 namespace Drupal\social_auth_facebook\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

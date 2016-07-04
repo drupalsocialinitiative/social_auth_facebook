@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simple_fb_connect\Plugin\Condition\UserHasFacebookAccessToken.
- */
-
-namespace Drupal\simple_fb_connect\Plugin\Condition;
+namespace Drupal\social_auth_facebook\Plugin\Condition;
 
 use Drupal\rules\Core\RulesConditionBase;
-use Drupal\simple_fb_connect\SimpleFbConnectPersistentDataHandler;
+use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * from session.
  *
  * @Condition(
- *   id = "simple_fb_connect_user_has_facebook_access_token",
+ *   id = "social_auth_facebook_user_has_facebook_access_token",
  *   label = @Translation("User has a Facebook access token"),
  *   category = @Translation("User")
  * )
@@ -42,10 +37,10 @@ class UserHasFacebookAccessToken extends RulesConditionBase implements Container
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param SimpleFbConnectPersistentDataHandler $persistent_data_handler
+   * @param FacebookAuthPersistentDataHandler $persistent_data_handler
    *   Persistent data handler of facebook.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, SimpleFbConnectPersistentDataHandler $persistent_data_handler) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FacebookAuthPersistentDataHandler $persistent_data_handler) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->persistentDataHandler = $persistent_data_handler;
   }
@@ -58,7 +53,7 @@ class UserHasFacebookAccessToken extends RulesConditionBase implements Container
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('simple_fb_connect.persistent_data_handler')
+      $container->get('social_auth_facebook.persistent_data_handler')
     );
   }
 

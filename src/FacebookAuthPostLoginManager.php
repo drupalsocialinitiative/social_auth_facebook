@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\SimpleFbConnectPostLoginManager.
- */
-
 namespace Drupal\social_auth_facebook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -14,9 +9,6 @@ use Drupal\user\Entity\User;
 
 /**
  * Contains all logic that is related to post login redirects.
- *
- * Class FacebookAuthPostLoginManager
- * @package Drupal\social_auth_facebook
  */
 class FacebookAuthPostLoginManager {
   protected $configFactory;

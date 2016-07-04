@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\FacebookAuthUserManager.
- */
-
 namespace Drupal\social_auth_facebook;
 
 use Drupal\user\Entity\User;
@@ -23,9 +18,6 @@ use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Contains all logic that is related to Drupal user management.
- *
- * Class FacebookAuthUserManager
- * @package Drupal\social_auth_facebook
  */
 class FacebookAuthUserManager {
   use StringTranslationTrait;

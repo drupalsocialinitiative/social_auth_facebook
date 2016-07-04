@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\SimpleFbConnectFbManager.
- */
-
 namespace Drupal\social_auth_facebook;
 
 use Facebook\Exceptions\FacebookResponseException;
@@ -19,11 +14,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 
 /**
- * Contains all Simple FB Connect logic that is related to Facebook interaction.
- *
- * Class FacebookAuthFbManager
- *
- * @package Drupal\social_auth_facebook
+ * Contains all Simple FB Connect logic that is related to Facebook interaction
  */
 class FacebookAuthFbManager {
 

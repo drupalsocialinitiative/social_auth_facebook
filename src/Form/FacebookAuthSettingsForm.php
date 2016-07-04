@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\Form\FacebookAuthSettingsForm.
- */
-
 namespace Drupal\social_auth_facebook\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\SimpleFbConnectPersistentDataHandler.
- */
-
 namespace Drupal\social_auth_facebook;
 
 use Facebook\PersistentData\PersistentDataInterface;

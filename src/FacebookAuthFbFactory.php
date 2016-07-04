@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\social_auth_facebook\SimpleFbConnectFbFactory.
- */
-
 namespace Drupal\social_auth_facebook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,10 +8,7 @@ use Facebook\Facebook;
 
 /**
  * Creates an instance of Facebook\Facebook service with app ID and secret from
- * SimpleFbConnect module settings.
- *
- * Class SimpleFbConnectFbFactory
- * @package Drupal\social_auth_facebook
+ * SimpleFbConnect module setting
  */
 class FacebookAuthFbFactory {
   protected $configFactory;
