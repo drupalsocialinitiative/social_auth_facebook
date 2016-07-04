@@ -1,0 +1,25 @@
+social_auth_facebook.redirect_to_fb:
+  path: 'user/login/facebook'
+  defaults:
+    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::redirectToFb'
+  requirements:
+    _role: 'anonymous'
+  options:
+    no_cache: TRUE
+
+social_auth_facebook.return_from_fb:
+  path: 'user/login/facebook/callback'
+  defaults:
+    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::returnFromFb'
+  requirements:
+    _role: 'anonymous'
+  options:
+    no_cache: TRUE
+
+social_auth_facebook.settings_form:
+  path: 'admin/config/social-api/social-auth/facebook'
+  defaults:
+    _title: 'Social Auth Facebook settings'
+    _form: '\Drupal\social_auth_facebook\Form\FacebookAuthSettingsForm'
+  requirements:
+    _permission: 'administer social api authentication'

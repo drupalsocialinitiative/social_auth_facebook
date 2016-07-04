@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Social Auth Facebook module.
+ */
+
+use Drupal\social_auth\Controller\SocialAuthController;
+
+/**
+ * Implements hook_requirements().
+ */
+function social_auth_facebook_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'install') {
+    if (!class_exists('\Facebook\Facebook')) {
+      $requirements['social_auth_facebook'] = [
+        'description' => t('Social Auth Facebook requires Facebook PHP SDK library. Make sure the library is installed via Composer. Check README.txt for installation instructions.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function social_auth_facebook_install() {
+  SocialAuthController::setLoginButtonSettings('social_auth_facebook', 'social_auth_facebook.redirect_to_fb', 'img/facebook_logo.svg');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function social_auth_facebook_uninstall() {
+  SocialAuthController::deleteLoginButtonSettings('social_auth_facebook');
+}
