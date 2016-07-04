@@ -37,5 +37,3 @@ services:
     class: Drupal\social_auth_facebook\FacebookAuthFbFactory
     arguments:
       - '@plugin.network.manager'
-      - '@config.factory'
-      - '@logger.factory'
