@@ -23,6 +23,10 @@ class FacebookAuthFbManager {
   protected $entityFieldManager;
   protected $urlGenerator;
   protected $persistentDataHandler;
+
+  /**
+   * @var \Facebook\Facebook
+   */
   protected $facebook;
 
   /**

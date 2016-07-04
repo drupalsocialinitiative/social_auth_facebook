@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   type = "social_auth",
  *   handlers = {
  *     "settings": {
- *       "class": "\Drupal\social_auth_facebook\Settings\FacebookSettings",
+ *       "class": "\Drupal\social_auth_facebook\Settings\FacebookAuthSettings",
  *       "config_id": "social_auth_facebook.settings"
  *     }
  *   }
@@ -49,7 +49,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   }
 
   /**
-   * Facebook constructor.
+   * FacebookAuth constructor.
    *
    * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
    * @param array $configuration

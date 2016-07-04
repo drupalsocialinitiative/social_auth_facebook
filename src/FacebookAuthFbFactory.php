@@ -4,6 +4,7 @@ namespace Drupal\social_auth_facebook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\social_api\Plugin\NetworkManager;
 use Facebook\Facebook;
 
 /**
@@ -13,22 +14,26 @@ use Facebook\Facebook;
 class FacebookAuthFbFactory {
   protected $configFactory;
   protected $loggerFactory;
-  protected $persistentDataHandler;
+
+  /**
+   * @var \Drupal\social_api\Plugin\NetworkManager
+   */
+  protected $networkManager;
 
   /**
    * Constructor.
    *
+   * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
+   *  Used for working with a Facebook Auth network plugin instance
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   Used for accessing Drupal configuration.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   Used for logging errors.
-   * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
-   *   Used for reading data from and writing data to session.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, FacebookAuthPersistentDataHandler $persistent_data_handler) {
-    $this->configFactory         = $config_factory;
-    $this->loggerFactory         = $logger_factory;
-    $this->persistentDataHandler = $persistent_data_handler;
+  public function __construct(NetworkManager $network_manager, ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory) {
+    $this->networkManager = $network_manager;
+    $this->configFactory = $config_factory;
+    $this->loggerFactory = $logger_factory;
   }
 
   /**
@@ -43,27 +48,12 @@ class FacebookAuthFbFactory {
   public function getFbService() {
     // Check that App ID and secret have been defined in module settings.
     if ($this->validateConfig()) {
-      $sdk_config = array(
-        'app_id' => $this->getAppId(),
-        'app_secret' => $this->getAppSecret(),
-        'default_graph_version' => 'v2.6',
-        'persistent_data_handler' => $this->persistentDataHandler,
-      );
-      return new Facebook($sdk_config);
+      // Returns a Facebook\Facebook object
+      return $this->networkManager->createInstance('social_auth_facebook')->getSdk();
     }
 
     // Return FALSE if app ID or secret is missing.
     return FALSE;
-  }
-
-  /**
-   * Returns an instance of SimpleFbConnectPersistentDataHandler service.
-   *
-   * @return \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
-   *   SimpleFbConnectPersistentDataHandler service instance.
-   */
-  public function getPersistentDataHandler() {
-    return $this->persistentDataHandler;
   }
 
   /**
@@ -79,7 +69,7 @@ class FacebookAuthFbFactory {
 
     if (!$app_id || !$app_secret) {
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->error('Define App ID and App Secret on module settings.');
       return FALSE;
     }

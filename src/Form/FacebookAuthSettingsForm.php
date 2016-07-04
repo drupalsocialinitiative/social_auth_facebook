@@ -56,6 +56,16 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Copy the App Secret of your Facebook App here'),
     );
 
+    $form['fb_settings']['graph_version'] = array(
+      '#type' => 'number',
+      '#min' => 0,
+      '#step' => 'any',
+      '#required' => TRUE,
+      '#title' => $this->t('Graph Version'),
+      '#default_value' => $simple_fb_config->get('graph_version'),
+      '#description' => $this->t('The default graph version to use.')
+    );
+
     $form['fb_settings']['site_url'] = array(
       '#type' => 'textfield',
       '#disabled' => TRUE,
@@ -123,6 +133,7 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
     $this->config('social_auth_facebook.settings')
       ->set('app_id', $values['app_id'])
       ->set('app_secret', $values['app_secret'])
+      ->set('graph_version', $values['graph_version'])
       ->set('post_login_path', $values['post_login_path'])
       ->set('redirect_user_form', $values['redirect_user_form'])
       ->set('disable_admin_login', $values['disable_admin_login'])

@@ -2,7 +2,7 @@
 
 namespace Drupal\social_auth_facebook\Settings;
 
-interface FacebookSettingsInterface {
+interface FacebookAuthSettingsInterface {
 
   /**
    * Gets the application ID.

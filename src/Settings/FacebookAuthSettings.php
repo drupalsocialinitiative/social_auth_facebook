@@ -7,7 +7,7 @@ use Drupal\social_api\Settings\SettingsBase;
 /**
  * Defines methods to get Social Auth Facebook app settings
  */
-class FacebookSettings extends SettingsBase implements FacebookSettingsInterface {
+class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsInterface {
 
   /**
    * Application ID.
