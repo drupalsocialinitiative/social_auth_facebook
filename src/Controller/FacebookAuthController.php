@@ -16,7 +16,7 @@ use Drupal\social_auth_facebook\FacebookAuthFbFactory;
 /**
  * Return responses for Simple FB Connect module routes.
  *
- * Class FacebookAuthController
+ * Class FacebookAuthController.
  *
  * @package Drupal\social_auth_facebook\Controller
  */

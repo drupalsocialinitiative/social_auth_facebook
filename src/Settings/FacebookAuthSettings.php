@@ -5,7 +5,7 @@ namespace Drupal\social_auth_facebook\Settings;
 use Drupal\social_api\Settings\SettingsBase;
 
 /**
- * Defines methods to get Social Auth Facebook app settings
+ * Defines methods to get Social Auth Facebook app settings.
  */
 class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsInterface {
 
@@ -66,4 +66,5 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
     }
     return $this->graphVersion;
   }
+
 }

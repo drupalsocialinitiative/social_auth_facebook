@@ -13,7 +13,7 @@ use Facebook\Facebook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines a Network Plugin for Social Auth Facebook
+ * Defines a Network Plugin for Social Auth Facebook.
  *
  * @package Drupal\simple_fb_connect\Plugin\Network
  *
@@ -32,11 +32,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
   /**
+   * The Facebook Persistent Data Handler.
+   *
    * @var FacebookAuthPersistentDataHandler.
    */
   protected $persistentDataHandler;
 
   /**
+   * The logger factory.
+   *
    * @var \Drupal\Core\Logger\LoggerChannelFactory
    */
   protected $loggerFactory;
@@ -60,15 +64,27 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * FacebookAuth constructor.
    *
    * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
+   *   The persistent data handler.
    * @param array $configuration
-   * @param mixed $plugin_id
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $plugin_definition
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param array $plugin_definition
+   *   The plugin implementation definition.
+   * @param EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory object.
    * @param \Drupal\Core\Logger\LoggerChannelFactory $logger_factory
+   *   The logger factory.
    */
-  public function __construct(FacebookAuthPersistentDataHandler $persistent_data_handler, array $configuration, $plugin_id, $plugin_definition,
-                              EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory, LoggerChannelFactory $logger_factory) {
+  public function __construct(FacebookAuthPersistentDataHandler $persistent_data_handler,
+                              array $configuration,
+                              $plugin_id,
+                              array $plugin_definition,
+                              EntityTypeManagerInterface $entity_type_manager,
+                              ConfigFactoryInterface $config_factory,
+                              LoggerChannelFactory $logger_factory) {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory);
 
@@ -85,8 +101,8 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * @throws SocialApiException
    *   If the SDK library does not exist.
    */
-  protected function initSdk()
-  {
+  protected function initSdk() {
+
     $class_name = '\Facebook\Facebook';
     if (!class_exists($class_name)) {
       throw new SocialApiException(sprintf('The PHP SDK for Facebook could not be found. Class: %s.', $class_name));
@@ -94,13 +110,13 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
     /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
     $settings = $this->settings;
 
-    if($this->validateConfig($settings)) {
+    if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
       $facebook_settings = [
         'app_id' => $settings->getAppId(),
         'app_secret' => $settings->getAppSecret(),
         'default_graph_version' => 'v' . $settings->getGraphVersion(),
-        'persistent_data_handler'=> $this->persistentDataHandler
+        'persistent_data_handler' => $this->persistentDataHandler,
       ];
 
       return new Facebook($facebook_settings);
@@ -112,13 +128,14 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   /**
    * Checks that module is configured.
    *
-   * @param FacebookAuthSettings $settings
+   * @param \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings
+   *   The Facebook auth settings.
    *
    * @return bool True if module is configured
-   * True if module is configured
-   * False otherwise
+   *   True if module is configured
+   *   False otherwise
    */
-  protected function validateConfig($settings) {
+  protected function validateConfig(FacebookAuthSettings $settings) {
     $app_id = $settings->getAppId();
     $app_secret = $settings->getAppSecret();
     $graph_version = $settings->getGraphVersion();
@@ -132,4 +149,5 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
     return TRUE;
   }
+
 }

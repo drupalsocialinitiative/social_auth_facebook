@@ -2,6 +2,9 @@
 
 namespace Drupal\social_auth_facebook\Settings;
 
+/**
+ * Defines the settings interface.
+ */
 interface FacebookAuthSettingsInterface {
 
   /**
@@ -27,4 +30,5 @@ interface FacebookAuthSettingsInterface {
    *   The version.
    */
   public function getGraphVersion();
+
 }

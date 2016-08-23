@@ -11,10 +11,9 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 
 /**
- * Contains all Simple FB Connect logic that is related to Facebook interaction
+ * Contains all Simple FB Connect logic that is related to Facebook interaction.
  */
 class FacebookAuthFbManager {
 
@@ -25,6 +24,8 @@ class FacebookAuthFbManager {
   protected $persistentDataHandler;
 
   /**
+   * The Facebook object.
+   *
    * @var \Facebook\Facebook
    */
   protected $facebook;

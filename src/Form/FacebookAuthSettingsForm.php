@@ -63,7 +63,7 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#title' => $this->t('Graph Version'),
       '#default_value' => $simple_fb_config->get('graph_version'),
-      '#description' => $this->t('The default graph version to use.')
+      '#description' => $this->t('The default graph version to use.'),
     );
 
     $form['fb_settings']['site_url'] = array(
