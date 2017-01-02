@@ -388,6 +388,11 @@ class FacebookAuthUserManager {
     // Try to download the profile picture and add it to user fields.
     if ($this->userPictureEnabled()) {
       if ($file = $this->downloadProfilePic($picture_url, $fbid)) {
+        // Sets the owner of the file to be the Drupal user.
+        $file->setOwner($drupal_user);
+        $file->save();
+
+        // Sets user's profile picture and save user.
         $drupal_user->set('user_picture', $file->id());
         $drupal_user->save();
         return TRUE;
