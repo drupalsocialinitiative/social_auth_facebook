@@ -14,11 +14,7 @@ use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 use Drupal\social_auth_facebook\FacebookAuthFbFactory;
 
 /**
- * Return responses for Simple FB Connect module routes.
- *
- * Class FacebookAuthController.
- *
- * @package Drupal\social_auth_facebook\Controller
+ * Returns responses for Simple FB Connect module routes.
  */
 class FacebookAuthController extends ControllerBase {
 
@@ -106,8 +102,8 @@ class FacebookAuthController extends ControllerBase {
     // Facebook service was returned, inject it to $fbManager.
     $this->fbManager->setFacebookService($facebook);
 
-    // Read user's access token and save it to session for other modules.
-    if (!$this->fbManager->saveAccessToken()) {
+    // Reads user's access token from Facebook.
+    if (!$access_token = $this->fbManager->getAccessTokenFromFb()) {
       drupal_set_message(t("Facebook login failed."), 'error');
       return $this->redirect('user.login');
     }
@@ -127,6 +123,9 @@ class FacebookAuthController extends ControllerBase {
     // If we have an existing user with the same email address, try to log in.
     if ($drupal_user = $this->userManager->loadUserByProperty('mail', $email)) {
       if ($this->userManager->loginUser($drupal_user)) {
+        // Saves user's access token to session for other modules.
+        $this->persistentDataHandler->set('access_token', $access_token);
+        // Redirects the user to post login path.
         return new RedirectResponse($this->postLoginManager->getPostLoginPath());
       }
       else {
@@ -145,6 +144,8 @@ class FacebookAuthController extends ControllerBase {
       // Log the newly created user in.
       if ($this->userManager->loginUser($drupal_user)) {
 
+        // Saves user's access token to session for other modules.
+        $this->persistentDataHandler->set('access_token', $access_token);
         // Check if new users should be redirected to Drupal user form.
         if ($this->postLoginManager->getRedirectNewUsersToUserFormSetting()) {
           drupal_set_message(t("Please check your account details. Since you logged in with Facebook, you don't need to update your password."));

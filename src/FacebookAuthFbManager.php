@@ -91,16 +91,17 @@ class FacebookAuthFbManager {
   }
 
   /**
-   * Reads user's access token from Facebook and save it to session.
+   * Reads user's access token from Facebook and sets it as default token.
    *
-   * This method can only be called from route simple_fb_connect.return_from_fb
-   * because RedirectLoginHelper will use the URL parameters set by Facebook.
+   * This method can only be called from route
+   * social_auth_facebook.return_from_fb since RedirectLoginHelper will use the
+   * URL parameters set by Facebook.
    *
-   * @return bool
-   *   True, if login was sucessfull on Facebook and access token could be read.
-   *   False otherwise
+   * @return \Facebook\Authentication\AccessToken | null
+   *   User's Facebook access token, if it could be read from Facebook.
+   *   Null, otherwise.
    */
-  public function saveAccessToken() {
+  public function getAccessTokenFromFb() {
     $helper = $this->facebook->getRedirectLoginHelper();
     try {
       $access_token = $helper->getAccessToken();
@@ -111,7 +112,7 @@ class FacebookAuthFbManager {
       $this->loggerFactory
         ->get('social_auth_facebook')
         ->error('Could not get Facebook access token. FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
-      return FALSE;
+      return NULL;
     }
 
     catch (FacebookSDKException $ex) {
@@ -119,6 +120,7 @@ class FacebookAuthFbManager {
       $this->loggerFactory
         ->get('social_auth_facebook')
         ->error('Could not get Facebook access token. Exception: @message', array('@message' => ($ex->getMessage())));
+      return NULL;
     }
 
     // If login was OK on Facebook, we now have user's access token.
@@ -127,17 +129,14 @@ class FacebookAuthFbManager {
       // All FB API requests use this token unless otherwise defined.
       $this->facebook->setDefaultAccessToken($access_token);
 
-      // Save token to session so that other modules can use it.
-      $this->persistentDataHandler->set('access_token', $access_token);
-
-      return TRUE;
+      return $access_token;
     }
 
     // If we're still here, user denied the login request on Facebook.
     $this->loggerFactory
       ->get('social_auth_facebook')
       ->error('Could not get Facebook access token. User cancelled the dialog in Facebook or return URL was not valid.');
-    return FALSE;
+    return NULL;
   }
 
   /**
