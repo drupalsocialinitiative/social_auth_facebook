@@ -135,15 +135,18 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
+    // Saves access token to session, so that event subscribers can call FB API.
+    $this->persistentDataHandler->set('access_token', $access_token);
+
     // If we have an existing user with the same email address, try to log in.
     if ($drupal_user = $this->userManager->loadUserByProperty('mail', $email)) {
       if ($this->userManager->loginUser($drupal_user)) {
-        // Saves user's access token to session for other modules.
-        $this->persistentDataHandler->set('access_token', $access_token);
         // Redirects the user to post login path.
         return new RedirectResponse($this->postLoginManager->getPostLoginPath());
       }
       else {
+        // Login was not successful. Unset access token from session.
+        $this->persistentDataHandler->set('access_token', NULL);
         return $this->redirect('user.login');
       }
     }
@@ -151,35 +154,35 @@ class FacebookAuthController extends ControllerBase {
     // If there was no existing user, try to create a new user.
     if ($drupal_user = $this->userManager->createUser($fb_profile->getField('name'), $email)) {
 
-      // Download profile picture for the newly created user.
+      // Downloads profile picture for the newly created user.
       if ($picture_url = $this->fbManager->getFbProfilePicUrl()) {
         $this->userManager->setProfilePic($drupal_user, $picture_url, $fb_profile->getField('id'));
       }
 
-      // Log the newly created user in.
+      // Logs the newly created user in.
       if ($this->userManager->loginUser($drupal_user)) {
-
-        // Saves user's access token to session for other modules.
-        $this->persistentDataHandler->set('access_token', $access_token);
-        // Check if new users should be redirected to Drupal user form.
+        // Checks if new users should be redirected to Drupal user form.
         if ($this->postLoginManager->getRedirectNewUsersToUserFormSetting()) {
-          drupal_set_message(t("Please check your account details. Since you logged in with Facebook, you don't need to update your password."));
+          drupal_set_message($this->t("Please check your account details. Since you logged in with Facebook, you don't need to update your password."));
           return new RedirectResponse($this->postLoginManager->getPathToUserForm($drupal_user));
         }
 
-        // Use normal post login path if user wasn't redirected to user form.
+        // Uses normal post login path if user wasn't redirected to user form.
         return new RedirectResponse($this->postLoginManager->getPostLoginPath());
       }
 
       else {
         // New user was created but the account is pending approval.
-        drupal_set_message(t('You will receive an email when site administrator activates your account.'), 'warning');
+        // Unset access token from session.
+        $this->persistentDataHandler->set('access_token', NULL);
+        drupal_set_message($this->t('You will receive an email when site administrator activates your account.'), 'warning');
         return $this->redirect('user.login');
       }
     }
 
     else {
-      // User could not be created.
+      // User could not be created. Unset access token from session.
+      $this->persistentDataHandler->set('access_token', NULL);
       return $this->redirect('user.login');
     }
 
