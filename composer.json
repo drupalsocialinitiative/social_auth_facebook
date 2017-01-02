@@ -1,6 +1,6 @@
 {
   "name": "drupal/social_auth_facebook",
   "require" : {
-    "facebook/php-sdk-v4" : "~5.0"
+    "facebook/graph-sdk" : "~5.0"
   }
 }
