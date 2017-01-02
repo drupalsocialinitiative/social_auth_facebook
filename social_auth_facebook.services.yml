@@ -19,6 +19,7 @@ services:
       - '@entity_field.manager'
       - '@token'
       - '@transliteration'
+      - '@language_manager'
 
   social_auth_facebook.post_login_manager:
     class: Drupal\social_auth_facebook\FacebookAuthPostLoginManager

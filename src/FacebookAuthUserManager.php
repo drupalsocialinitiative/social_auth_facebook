@@ -5,6 +5,7 @@ namespace Drupal\social_auth_facebook;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -30,6 +31,7 @@ class FacebookAuthUserManager {
   protected $entityFieldManager;
   protected $token;
   protected $transliteration;
+  protected $languageManager;
 
   /**
    * Constructor.
@@ -51,7 +53,7 @@ class FacebookAuthUserManager {
    * @param \Drupal\Core\Transliteration\PhpTransliteration $transliteration
    *   Used for user picture directory and file transliteration.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, TranslationInterface $string_translation, EventDispatcherInterface $event_dispatcher, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, Token $token, PhpTransliteration $transliteration) {
+  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, TranslationInterface $string_translation, EventDispatcherInterface $event_dispatcher, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, Token $token, PhpTransliteration $transliteration, LanguageManagerInterface $language_manager) {
     $this->configFactory      = $config_factory;
     $this->loggerFactory      = $logger_factory;
     $this->stringTranslation  = $string_translation;
@@ -60,6 +62,7 @@ class FacebookAuthUserManager {
     $this->entityFieldManager = $entity_field_manager;
     $this->token              = $token;
     $this->transliteration    = $transliteration;
+    $this->languageManager    = $language_manager;
   }
 
   /**
@@ -127,12 +130,25 @@ class FacebookAuthUserManager {
     // Set up the user fields.
     // - Username will be user's name on Facebook.
     // - Password can be very long since the user doesn't see this.
+    // There are three different language fields.
+    // - preferred_language
+    // - preferred_admin_langcode
+    // - langcode of the user entity i.e. the language of the profile fields
+    // - We use the same logic as core and populate the current UI language to
+    //   all of these. Other modules can subscribe to the triggered event and
+    //   change the languages if they will.
+    // Get the current UI language.
+    $langcode = $this->languageManager->getCurrentLanguage()->getId();
+
     $fields = array(
       'name' => $this->generateUniqueUsername($name),
       'mail' => $email,
       'init' => $email,
       'pass' => $this->userPassword(32),
       'status' => $this->getNewUserStatus(),
+      'langcode' => $langcode,
+      'preferred_langcode' => $langcode,
+      'preferred_admin_langcode' => $langcode,
     );
 
     // Create new user account.
