@@ -107,7 +107,7 @@ class FacebookAuthUserManager {
     // Make sure we have everything we need.
     if (!$name || !$email) {
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->error('Failed to create user. Name: @name, email: @email', array('@name' => $name, '@email' => $email));
       $this->drupalSetMessage($this->t('Error while creating user account. Please contact site administrator.'), 'error');
       return FALSE;
@@ -117,7 +117,7 @@ class FacebookAuthUserManager {
     if ($this->registrationBlocked()) {
 
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->warning('Failed to create user. User registration is disabled in Drupal account settings. Name: @name, email: @email.', array('@name' => $name, '@email' => $email));
 
       $this->drupalSetMessage($this->t('Only existing users can log in with Facebook. Contact system administrator.'), 'error');
@@ -156,14 +156,14 @@ class FacebookAuthUserManager {
       $new_user->save();
 
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->notice('New user created. Username @username, UID: @uid', array('@username' => $new_user->getAccountName(), '@uid' => $new_user->id()));
 
       // Dispatch an event so that other modules can react to the user creation.
       // Set the account twice on the event: as the main subject but also in the
       // list of arguments.
       $event = new GenericEvent($new_user, ['account' => $new_user]);
-      $this->eventDispatcher->dispatch('simple_fb_connect.user_created', $event);
+      $this->eventDispatcher->dispatch('social_auth_facebook.user_created', $event);
 
       return $new_user;
     }
@@ -171,7 +171,7 @@ class FacebookAuthUserManager {
     catch (EntityStorageException $ex) {
       $this->drupalSetMessage($this->t('Creation of user account failed. Please contact site administrator.'), 'error');
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->error('Could not create new user. Exception: @message', array('@message' => $ex->getMessage()));
     }
 
@@ -212,7 +212,7 @@ class FacebookAuthUserManager {
       // Set the account twice on the event: as the main subject but also in the
       // list of arguments.
       $event = new GenericEvent($drupal_user, ['account' => $drupal_user]);
-      $this->eventDispatcher->dispatch('simple_fb_connect.user_login', $event);
+      $this->eventDispatcher->dispatch('social_auth_facebook.user_login', $event);
 
       // TODO: Add Boost cookie if Boost module is enabled
       // https://www.drupal.org/node/2524372
@@ -223,7 +223,7 @@ class FacebookAuthUserManager {
     // If we are still here, account is blocked.
     $this->drupalSetMessage($this->t('You could not be logged in because your user account @username is not active.', array('@username' => $drupal_user->getAccountName())), 'warning');
     $this->loggerFactory
-      ->get('simple_fb_connect')
+      ->get('social_auth_facebook')
       ->warning('Facebook login for user @user prevented. Account is blocked.', array('@user' => $drupal_user->getAccountName()));
     return FALSE;
   }
@@ -321,11 +321,11 @@ class FacebookAuthUserManager {
 
       // Check if admin FB login is disabled.
       if ($this->configFactory
-        ->get('simple_fb_connect.settings')
+        ->get('social_auth_facebook.settings')
         ->get('disable_admin_login')) {
 
         $this->loggerFactory
-          ->get('simple_fb_connect')
+          ->get('social_auth_facebook')
           ->warning('Facebook login for user @user prevented. Facebook login for site administrator (user 1) is disabled in module settings.', array('@user' => $drupal_user->getAccountName()));
         return TRUE;
       }
@@ -346,18 +346,21 @@ class FacebookAuthUserManager {
    *   False if login is not disabled for this user's roles
    */
   protected function loginDisabledByRole(User $drupal_user) {
-    // Read roles that are blocked from module settings.
+    // Reads roles that are blocked from module settings.
     $disabled_roles = $this->configFactory
-      ->get('simple_fb_connect.settings')
+      ->get('social_auth_facebook.settings')
       ->get('disabled_roles');
 
-    // Loop through all roles the user has.
+    // Filter out allowed roles. Allowed roles have have value "0".
+    // "0" evaluates to FALSE so second parameter of array_filter is omitted.
+    $disabled_roles = array_filter($disabled_roles);
+
+    // Loops through all roles the user has.
     foreach ($drupal_user->getRoles() as $role) {
       // Check if FB login is disabled for this role.
-      // Disabled roles have non-zero value.
-      if (array_key_exists($role, $disabled_roles) && ($disabled_roles[$role] !== 0)) {
+      if (array_key_exists($role, $disabled_roles)) {
         $this->loggerFactory
-          ->get('simple_fb_connect')
+          ->get('social_auth_facebook')
           ->warning('Facebook login for user @user prevented. Facebook login for role @role is disabled in module settings.', array('@user' => $drupal_user->getAccountName(), '@role' => $role));
         return TRUE;
       }
@@ -429,7 +432,7 @@ class FacebookAuthUserManager {
 
     if (!$this->filePrepareDirectory($directory, 1)) {
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->error('Could not save FB profile picture. Directory is not writeable: @directory', array('@directory' => $directory));
       return FALSE;
     }
@@ -442,7 +445,7 @@ class FacebookAuthUserManager {
     // Download the picture to local filesystem.
     if (!$file = $this->systemRetrieveFile($picture_url, $destination, TRUE, 1)) {
       $this->loggerFactory
-        ->get('simple_fb_connect')
+        ->get('social_auth_facebook')
         ->error('Could not download Facebook profile picture from url: @url', array('@url' => $picture_url));
       return FALSE;
     }
