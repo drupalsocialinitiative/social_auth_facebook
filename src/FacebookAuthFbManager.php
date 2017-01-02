@@ -229,7 +229,7 @@ class FacebookAuthFbManager {
    *
    * @return string|false
    *   Absolute URL of the profile picture
-   *   False on errors
+   *   False if user did not have a profile picture on FB or an error occured.
    */
   public function getFbProfilePicUrl() {
     // Determine preferred resolution for the profile picture.
@@ -243,7 +243,18 @@ class FacebookAuthFbManager {
 
     // Call Graph API to request profile picture.
     try {
-      return $this->facebook->get($query)->getGraphNode()->getField('url');
+      $graph_node = $this->facebook
+        ->get($query)->getGraphNode()
+        ->getField('url');
+
+      // We don't download the FB default silhouttes, only real pictures.
+      $is_silhouette = (bool) $graph_node->getField('is_silhouette');
+      if ($is_silhouette) {
+        return FALSE;
+      }
+
+      // We have a real picture, return URL for it.
+      return $graph_node->getField('url');
     }
     catch (FacebookResponseException $ex) {
       $this->loggerFactory
