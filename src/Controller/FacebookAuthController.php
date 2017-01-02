@@ -76,9 +76,17 @@ class FacebookAuthController extends ControllerBase {
     // Facebook service was returned, inject it to $fbManager.
     $this->fbManager->setFacebookService($facebook);
 
-    // Save post login path to session if it was set as a query parameter.
+    // Saves post login path to session if it was set as a query parameter.
     if ($post_login_path = $this->postLoginManager->getPostLoginPathFromRequest()) {
       $this->postLoginManager->savePostLoginPath($post_login_path);
+    }
+
+    // Generates the URL where the user will be redirected for FB login.
+    // If the user did not have email permission granted on previous attempt,
+    // we use the re-request URL requesting only the email address.
+    $fb_login_url = $this->fbManager->getFbLoginUrl();
+    if ($this->persistentDataHandler->get('reprompt')) {
+      $fb_login_url = $this->fbManager->getFbReRequestUrl();
     }
 
     // Redirect the user to FB for authentication.
@@ -95,7 +103,7 @@ class FacebookAuthController extends ControllerBase {
   public function returnFromFb() {
     // Try to get an instance of Facebook service.
     if (!$facebook = $this->fbFactory->getFbService()) {
-      drupal_set_message(t('Simple FB Connect not configured properly. Contact site administrator.'), 'error');
+      drupal_set_message($this->t('Simple FB Connect not configured properly. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 
@@ -104,19 +112,26 @@ class FacebookAuthController extends ControllerBase {
 
     // Reads user's access token from Facebook.
     if (!$access_token = $this->fbManager->getAccessTokenFromFb()) {
-      drupal_set_message(t("Facebook login failed."), 'error');
+      drupal_set_message($this->t('Facebook login failed.'), 'error');
+      return $this->redirect('user.login');
+    }
+
+    // Checks that user authorized our app to access user's email address.
+    if (!$this->fbManager->checkPermission('email')) {
+      drupal_set_message($this->t('Facebook login failed. This site requires permission to get your email address from Facebook. Please try again.'), 'error');
+      $this->persistentDataHandler->set('reprompt', TRUE);
       return $this->redirect('user.login');
     }
 
     // Get user's FB profile from Facebook API.
     if (!$fb_profile = $this->fbManager->getFbProfile()) {
-      drupal_set_message(t("Facebook login failed, could not load Facebook profile. Contact site administrator."), 'error');
+      drupal_set_message($this->t('Facebook login failed, could not load Facebook profile. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 
     // Get user's email from the FB profile.
     if (!$email = $this->fbManager->getEmail($fb_profile)) {
-      drupal_set_message(t('Facebook login failed. This site requires permission to get your email address.'), 'error');
+      drupal_set_message($this->t('Facebook login failed. This site requires permission to get your email address.'), 'error');
       return $this->redirect('user.login');
     }
 

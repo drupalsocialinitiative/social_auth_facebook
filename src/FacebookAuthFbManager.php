@@ -77,7 +77,7 @@ class FacebookAuthFbManager {
       'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
 
     // Define the initial array of Facebook permissions.
-    $scope = array('email');
+    $scope = array('public_profile', 'email');
 
     // Dispatch an event so that other modules can modify the permission scope.
     // Set the scope twice on the event: as the main subject but also in the
@@ -88,6 +88,26 @@ class FacebookAuthFbManager {
 
     // Generate and return the URL where we should redirect the user.
     return $login_helper->getLoginUrl($return_url, $final_scope);
+  }
+
+  /**
+   * Returns the Facebook login URL for re-requesting email permission.
+   *
+   * @return string
+   *   Absolute Facebook login URL where user will be redirected
+   */
+  public function getFbReRequestUrl() {
+    $login_helper = $this->facebook->getRedirectLoginHelper();
+
+    // Define the URL where Facebook should return the user.
+    $return_url = $this->urlGenerator->generateFromRoute(
+      'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
+
+    // Define the array of Facebook permissions to re-request.
+    $scope = array('public_profile', 'email');
+
+    // Generate and return the URL where we should redirect the user.
+    return $login_helper->getReRequestUrl($return_url, $scope);
   }
 
   /**
@@ -140,6 +160,43 @@ class FacebookAuthFbManager {
   }
 
   /**
+   * Makes an API call to check if user has granted given permission.
+   *
+   * @param string $permission_to_check
+   *   Permission to check.
+   *
+   * @return bool
+   *   True if user has granted given permission.
+   *   False otherwise.
+   */
+  public function checkPermission($permission_to_check) {
+    try {
+      $permissions = $this->facebook
+        ->get('/me/permissions')
+        ->getGraphEdge()
+        ->asArray();
+      foreach ($permissions as $permission) {
+        if ($permission['permission'] == $permission_to_check && $permission['status'] == 'granted') {
+          return TRUE;
+        }
+      }
+    }
+    catch (FacebookResponseException $ex) {
+      $this->loggerFactory
+        ->get('social_auth_facebook')
+        ->error('Could not check Facebook permissions: FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
+    }
+    catch (FacebookSDKException $ex) {
+      $this->loggerFactory
+        ->get('social_auth_facebook')
+        ->error('Could not check Facebook permissions: FacebookSDKException: @message', array('@message' => ($ex->getMessage())));
+    }
+
+    // We don't have permission or we got an exception during the API call.
+    return FALSE;
+  }
+
+  /**
    * Makes an API call to get user's Facebook profile.
    *
    * @return \Facebook\GraphNodes\GraphNode|false
@@ -148,7 +205,9 @@ class FacebookAuthFbManager {
    */
   public function getFbProfile() {
     try {
-      return $this->facebook->get('/me?fields=id,name,email')->getGraphNode();
+      return $this->facebook
+        ->get('/me?fields=id,name,email')
+        ->getGraphNode();
     }
     catch (FacebookResponseException $ex) {
       $this->loggerFactory
