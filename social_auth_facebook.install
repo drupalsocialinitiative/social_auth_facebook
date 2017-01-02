@@ -9,20 +9,51 @@ use Drupal\social_auth\Controller\SocialAuthController;
 
 /**
  * Implements hook_requirements().
+ *
+ * Checks that a compatible version of Facebook Graph SDK has been installed
+ * with Composer. Check installation instructions from the README.txt.
  */
 function social_auth_facebook_requirements($phase) {
   $requirements = array();
 
   if ($phase == 'install') {
-    if (!class_exists('\Facebook\Facebook')) {
+    $sdk_found = FALSE;
+
+    if ($json = social_auth_facebook_read_packages()) {
+
+      // Loops through installed packages and check that the SDK version is OK.
+      foreach ($json as $package) {
+        if ($package['name'] == 'facebook/graph-sdk') {
+          $sdk_found = TRUE;
+          if ($package['version'] < 5 || $package['version'] >= 6) {
+            $requirements['social_auth_facebook'] = [
+              'description' => t('Social Auth Facebook could not be installed because an incompatible version of Facebook SDK library was detected. Please read the installation instructions from README.txt.'),
+              'severity' => REQUIREMENT_ERROR,
+            ];
+          }
+        }
+      }
+
+      // SDK was not found in installed.json.
+      if (!$sdk_found) {
+        $requirements['social_auth_facebook'] = [
+          'description' => t('Social Auth Facebook could not be installed because Facebook SDK library was not found. Simple FB Connect must be installed using Composer. Please read the installation instructions from README.txt.'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+    }
+
+    // installed.json could not be read or parsed.
+    else {
       $requirements['social_auth_facebook'] = [
-        'description' => t('Social Auth Facebook requires Facebook PHP SDK library. Make sure the library is installed via Composer. Check README.txt for installation instructions.'),
+        'description' => t('Social Auth Facebook could not be installed: installed.json could not be read.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     }
   }
 
   return $requirements;
+
 }
 
 /**
@@ -37,4 +68,25 @@ function social_auth_facebook_install() {
  */
 function social_auth_facebook_uninstall() {
   SocialAuthController::deleteLoginButtonSettings('social_auth_facebook');
+}
+
+/**
+ * Reads and parses Drupal installed.json.
+ *
+ * @return array|bool
+ *   Parsed installed.json if the file could be read and parsed.
+ *   False otherwise.
+ */
+function social_auth_facebook_read_packages() {
+  $file_uri = DRUPAL_ROOT . '/vendor/composer/installed.json';
+  if (file_exists($file_uri)) {
+    if ($filedata = @file_get_contents($file_uri)) {
+      $json = @json_decode($filedata, TRUE);
+      if ($json !== NULL) {
+        return $json;
+      }
+    }
+  }
+  return FALSE;
+  
 }
