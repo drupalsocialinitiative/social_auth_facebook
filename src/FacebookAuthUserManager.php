@@ -15,6 +15,7 @@ use Drupal\Core\Transliteration\PhpTransliteration;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Component\Utility\Unicode;
 
 /**
  * Contains all logic that is related to Drupal user management.
@@ -139,6 +140,17 @@ class FacebookAuthUserManager {
       ->getStorage('user')
       ->create($fields);
 
+    // Validate the new user.
+    $violations = $new_user->validate();
+    if (count($violations) > 0) {
+      $msg = $violations[0]->getMessage();
+      $this->drupalSetMessage($this->t('Creation of user account failed: @message', array('@message' => $msg)), 'error');
+      $this->loggerFactory
+        ->get('social_auth_facebook')
+        ->error('Could not create new user: @message', array('@message' => $msg));
+      return FALSE;
+    }
+
     // Try to save the new user account.
     try {
       $new_user->save();
@@ -250,13 +262,29 @@ class FacebookAuthUserManager {
    *   Unique username
    */
   protected function generateUniqueUsername($fb_name) {
-    $base = trim($fb_name);
+    // Truncate to max length. We use hard coded length because using
+    // USERNAME_MAX_LENGTH cause unit tests to fail.
+    $max_length = 60;
+    $fb_name = Unicode::substr($fb_name, 0, $max_length);
+
+    // Add a trailing number if needed to make username unique.
+    $base = $fb_name;
     $i = 1;
     $candidate = $base;
     while ($this->loadUserByProperty('name', $candidate)) {
       $i++;
+      // Calculate max length for $base and truncate if needed.
+      $max_length_base = $max_length - strlen((string)$i) - 1;
+      $base = Unicode::substr($base, 0, $max_length_base);
       $candidate = $base . " " . $i;
     }
+
+    // Trim leading and trailing whitespace.
+    $candidate = trim($candidate);
+
+    // Remove multiple spacebars from the username if needed.
+    $candidate = preg_replace('/ {2,}/', ' ', $candidate);
+
     return $candidate;
   }
 
