@@ -1,6 +1,9 @@
 {
-  "name": "drupal/social_auth_facebook",
-  "require" : {
-    "facebook/graph-sdk" : "~5.0"
-  }
+    "name": "drupal/social_auth_facebook",
+    "description": "Allows users to authenticate with their Facebook accounts.",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "require" : {
+        "facebook/graph-sdk" : "~5.0"
+    }
 }
