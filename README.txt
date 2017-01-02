@@ -4,7 +4,8 @@ INTRODUCTION
 ------------
 
 Social Auth Facebook Module is a Facebook Authentication integration for Drupal.
-It is based on the Social Auth and Social API projects
+It is based on the Social Auth and Social API projects, as well as in the
+Simple FB Connect module.
 
 It adds to the site:
 * A new url: /user/login/facebook
@@ -46,13 +47,8 @@ SUPPORT REQUESTS
 Before posting a support request, carefully read the installation
 instructions provided in module documentation page.
 
-Before posting a support request, check Composer Manager status report at
-admin/reports/composer-manager. This status page will show the Google API PHP
-Client version if Drupal can detect it.
-
 Before posting a support request, check Recent log entries at
 admin/reports/dblog
 
-When posting a support request, please inform what does the status report say
-at admin/reports/composer-manager and if you were able to see any errors in
-Recent log entries.
+When posting a support request, please inform if you were able to see any errors
+in Recent log entries.
