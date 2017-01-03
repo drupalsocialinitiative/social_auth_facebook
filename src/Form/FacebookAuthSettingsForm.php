@@ -119,7 +119,7 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#default_value' => $simple_fb_config->get('disabled_roles'),
     );
     if (empty($roles)) {
-      $form['module_settings']['disabled_roles']['#description'] = t('No roles found.');
+      $form['module_settings']['disabled_roles']['#description'] = $this->t('No roles found.');
     }
 
     return parent::buildForm($form, $form_state);

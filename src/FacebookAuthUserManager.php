@@ -52,6 +52,8 @@ class FacebookAuthUserManager {
    *   Used for token support in Drupal user picture directory.
    * @param \Drupal\Core\Transliteration\PhpTransliteration $transliteration
    *   Used for user picture directory and file transliteration.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   Used for detecting the current UI language.
    */
   public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, TranslationInterface $string_translation, EventDispatcherInterface $event_dispatcher, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, Token $token, PhpTransliteration $transliteration, LanguageManagerInterface $language_manager) {
     $this->configFactory      = $config_factory;
@@ -290,7 +292,7 @@ class FacebookAuthUserManager {
     while ($this->loadUserByProperty('name', $candidate)) {
       $i++;
       // Calculate max length for $base and truncate if needed.
-      $max_length_base = $max_length - strlen((string)$i) - 1;
+      $max_length_base = $max_length - strlen((string) $i) - 1;
       $base = Unicode::substr($base, 0, $max_length_base);
       $candidate = $base . " " . $i;
     }

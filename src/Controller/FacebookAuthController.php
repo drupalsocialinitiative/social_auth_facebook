@@ -69,7 +69,7 @@ class FacebookAuthController extends ControllerBase {
   public function redirectToFb() {
     // Try to get an instance of Facebook service.
     if (!$facebook = $this->fbFactory->getFbService()) {
-      drupal_set_message(t('Simple FB Connect not configured properly. Contact site administrator.'), 'error');
+      drupal_set_message($this->t('Simple FB Connect not configured properly. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 

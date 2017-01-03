@@ -117,7 +117,7 @@ class FacebookAuthFbManager {
    * social_auth_facebook.return_from_fb since RedirectLoginHelper will use the
    * URL parameters set by Facebook.
    *
-   * @return \Facebook\Authentication\AccessToken | null
+   * @return \Facebook\Authentication\AccessToken|null
    *   User's Facebook access token, if it could be read from Facebook.
    *   Null, otherwise.
    */
@@ -243,11 +243,9 @@ class FacebookAuthFbManager {
 
     // Call Graph API to request profile picture.
     try {
-      $graph_node = $this->facebook
-        ->get($query)->getGraphNode()
-        ->getField('url');
+      $graph_node = $this->facebook->get($query)->getGraphNode();
 
-      // We don't download the FB default silhouttes, only real pictures.
+      // We don't download the FB default silhouettes, only real pictures.
       $is_silhouette = (bool) $graph_node->getField('is_silhouette');
       if ($is_silhouette) {
         return FALSE;
