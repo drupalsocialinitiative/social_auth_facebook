@@ -2,14 +2,49 @@
 
 namespace Drupal\social_auth_facebook\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RequestContext;
 use Drupal\Component\Utility\SafeMarkup;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a form that configures Simple FB Connect settings.
  */
 class FacebookAuthSettingsForm extends ConfigFormBase {
+
+  /**
+   * @var \Drupal\Core\Routing\RequestContext
+   *
+   * The request context.
+   */
+  protected $requestContext;
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Routing\RequestContext $request_context
+   *   Holds information about the current request.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, RequestContext $request_context) {
+    $this->requestContext = $request_context;
+    parent::__construct($config_factory);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this class.
+    return new static(
+    // Load the services required to construct this class.
+      $container->get('config.factory'),
+      $container->get('router.request_context')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -66,11 +101,27 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Copy the API Version of your Facebook App here. This value can be found from your App Dashboard. More information on API versions can be found at <a href="@facebook-changelog">Facebook Platform Changelog</a>', array('@facebook-changelog' => 'https://developers.facebook.com/docs/apps/changelog')),
     );
 
+    $form['fb_settings']['oauth_redirect_url'] = array(
+      '#type' => 'textfield',
+      '#disabled' => TRUE,
+      '#title' => $this->t('Valid OAuth redirect URIs'),
+      '#description' => $this->t('Copy this value to <em>Valid OAuth redirect URIs</em> field of your Facebook App settings.'),
+      '#default_value' => $GLOBALS['base_url'] . '/user/login/facebook/callback',
+    );
+
+    $form['fb_settings']['app_domains'] = array(
+      '#type' => 'textfield',
+      '#disabled' => TRUE,
+      '#title' => $this->t('App Domains'),
+      '#description' => $this->t('Copy this value to <em>App Domains</em> field of your Facebook App settings.'),
+      '#default_value' => $this->requestContext->getHost(),
+    );
+
     $form['fb_settings']['site_url'] = array(
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#title' => $this->t('Site URL'),
-      '#description' => $this->t('Copy this value to <em>Site URL</em> and <em>Mobile Site URL</em> of your Facebook App settings.'),
+      '#description' => $this->t('Copy this value to <em>Site URL</em> field of your Facebook App settings.'),
       '#default_value' => $GLOBALS['base_url'],
     );
 
