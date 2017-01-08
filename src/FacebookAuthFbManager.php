@@ -126,7 +126,7 @@ class FacebookAuthFbManager {
 
     // URL where Facebook returned the user.
     $return_url = $this->urlGenerator->generateFromRoute(
-      'simple_fb_connect.return_from_fb', array(), array('absolute' => TRUE));
+      'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
 
     try {
       $access_token = $helper->getAccessToken($return_url);
