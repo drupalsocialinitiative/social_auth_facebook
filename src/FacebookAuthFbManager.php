@@ -123,8 +123,13 @@ class FacebookAuthFbManager {
    */
   public function getAccessTokenFromFb() {
     $helper = $this->facebook->getRedirectLoginHelper();
+
+    // URL where Facebook returned the user.
+    $return_url = $this->urlGenerator->generateFromRoute(
+      'simple_fb_connect.return_from_fb', array(), array('absolute' => TRUE));
+
     try {
-      $access_token = $helper->getAccessToken();
+      $access_token = $helper->getAccessToken($return_url);
     }
 
     catch (FacebookResponseException $ex) {
