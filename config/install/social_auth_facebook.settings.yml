@@ -1,6 +1,4 @@
-app_id: ""
-app_secret: ""
-graph_version: "2.6"
+graph_version: "2.8"
 post_login_path: user
 redirect_user_form: 0
 disable_admin_login: 1

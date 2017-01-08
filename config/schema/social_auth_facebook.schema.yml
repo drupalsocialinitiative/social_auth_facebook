@@ -15,7 +15,7 @@ social_auth_facebook.settings:
       label: 'App Secret'
     graph_version:
       type: float
-      label: 'Graph Version'
+      label: 'Facebook Graph API version'
     post_login_path:
       type: string
       label: 'Post login path'

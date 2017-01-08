@@ -31,7 +31,7 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $simple_fb_config = $this->config('social_auth_facebook.settings');
+    $config = $this->config('social_auth_facebook.settings');
 
     $form['fb_settings'] = array(
       '#type' => 'details',
@@ -44,16 +44,16 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#required' => TRUE,
       '#title' => $this->t('Application ID'),
-      '#default_value' => $simple_fb_config->get('app_id'),
-      '#description' => $this->t('Copy the App ID of your Facebook App here'),
+      '#default_value' => $config->get('app_id'),
+      '#description' => $this->t('Copy the App ID of your Facebook App here. This value can be found from your App Dashboard.'),
     );
 
     $form['fb_settings']['app_secret'] = array(
       '#type' => 'textfield',
       '#required' => TRUE,
       '#title' => $this->t('App Secret'),
-      '#default_value' => $simple_fb_config->get('app_secret'),
-      '#description' => $this->t('Copy the App Secret of your Facebook App here'),
+      '#default_value' => $config->get('app_secret'),
+      '#description' => $this->t('Copy the App Secret of your Facebook App here. This value can be found from your App Dashboard.'),
     );
 
     $form['fb_settings']['graph_version'] = array(
@@ -61,9 +61,9 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#min' => 0,
       '#step' => 'any',
       '#required' => TRUE,
-      '#title' => $this->t('Graph Version'),
-      '#default_value' => $simple_fb_config->get('graph_version'),
-      '#description' => $this->t('The default graph version to use.'),
+      '#title' => $this->t('Facebook Graph API version'),
+      '#default_value' => $config->get('graph_version'),
+      '#description' => $this->t('Copy the API Version of your Facebook App here. This value can be found from your App Dashboard. More information on API versions can be found at <a href="@facebook-changelog">Facebook Platform Changelog</a>', array('@facebook-changelog' => 'https://developers.facebook.com/docs/apps/changelog')),
     );
 
     $form['fb_settings']['site_url'] = array(
@@ -86,21 +86,21 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#title' => $this->t('Post login path'),
       '#description' => $this->t('Drupal path where the user should be redirected after successful login. Use <em>&lt;front&gt;</em> to redirect user to your front page.'),
-      '#default_value' => $simple_fb_config->get('post_login_path'),
+      '#default_value' => $config->get('post_login_path'),
     );
 
     $form['module_settings']['redirect_user_form'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Redirect new users to Drupal user form'),
       '#description' => $this->t('If you check this, new users are redirected to Drupal user form after the user is created. This is useful if you want to encourage users to fill in additional user fields.'),
-      '#default_value' => $simple_fb_config->get('redirect_user_form'),
+      '#default_value' => $config->get('redirect_user_form'),
     );
 
     $form['module_settings']['disable_admin_login'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Disable FB login for administrator'),
       '#description' => $this->t('Disabling FB login for administrator (<em>user 1</em>) can help protect your site if a security vulnerability is ever discovered in Facebook PHP SDK or this module.'),
-      '#default_value' => $simple_fb_config->get('disable_admin_login'),
+      '#default_value' => $config->get('disable_admin_login'),
     );
 
     // Option to disable FB login for specific roles.
@@ -116,13 +116,22 @@ class FacebookAuthSettingsForm extends ConfigFormBase {
       '#type' => 'checkboxes',
       '#title' => $this->t('Disable FB login for the following roles'),
       '#options' => $options,
-      '#default_value' => $simple_fb_config->get('disabled_roles'),
+      '#default_value' => $config->get('disabled_roles'),
     );
     if (empty($roles)) {
       $form['module_settings']['disabled_roles']['#description'] = $this->t('No roles found.');
     }
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if (!preg_match('/^[2-9]\.[0-9]{1,2}$/', $form_state->getValue('graph_version'))) {
+      $form_state->setErrorByName('graph_version', $this->t('Invalid API version. The syntax for API version is for example <em>v2.8</em>'));
+    }
   }
 
   /**
