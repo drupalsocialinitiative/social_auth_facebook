@@ -78,7 +78,11 @@ function social_auth_facebook_uninstall() {
  *   False otherwise.
  */
 function social_auth_facebook_read_packages() {
-  $file_uri = DRUPAL_ROOT . '/vendor/composer/installed.json';
+  // Make this test compatible with either regular installs.
+  // Check whether DRUPAL_ROOT is the actual website filesystem root or /web/
+  // subdirectory in case of composer drupal-scaffold.
+  $base_dir = is_dir(DRUPAL_ROOT . '/vendor') ? DRUPAL_ROOT : dirname(DRUPAL_ROOT);
+  $file_uri = $base_dir . '/vendor/composer/installed.json';
   if (file_exists($file_uri)) {
     if ($filedata = @file_get_contents($file_uri)) {
       $json = @json_decode($filedata, TRUE);
