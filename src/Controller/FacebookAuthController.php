@@ -89,9 +89,6 @@ class FacebookAuthController extends ControllerBase {
       $fb_login_url = $this->fbManager->getFbReRequestUrl();
     }
 
-    // Redirect the user to FB for authentication.
-    $fb_login_url = $this->fbManager->getFbLoginUrl();
-
     return new TrustedRedirectResponse($fb_login_url);
   }
 
