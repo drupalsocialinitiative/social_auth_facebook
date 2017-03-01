@@ -4,7 +4,7 @@ namespace Drupal\social_auth_facebook\Plugin\Network;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
@@ -34,7 +34,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   /**
    * The Facebook Persistent Data Handler.
    *
-   * @var FacebookAuthPersistentDataHandler.
+   * @var FacebookAuthPersistentDataHandler
    */
   protected $persistentDataHandler;
 
@@ -75,7 +75,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory object.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $logger_factory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    */
   public function __construct(FacebookAuthPersistentDataHandler $persistent_data_handler,
@@ -84,7 +84,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
                               array $plugin_definition,
                               EntityTypeManagerInterface $entity_type_manager,
                               ConfigFactoryInterface $config_factory,
-                              LoggerChannelFactory $logger_factory) {
+                              LoggerChannelFactoryInterface $logger_factory) {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory);
 
@@ -132,9 +132,9 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * @param \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings
    *   The Facebook auth settings.
    *
-   * @return bool True if module is configured
-   *   True if module is configured
-   *   False otherwise
+   * @return bool
+   *   True if module is configured.
+   *   False otherwise.
    */
   protected function validateConfig(FacebookAuthSettings $settings) {
     $app_id = $settings->getAppId();
