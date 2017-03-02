@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 /**
  * Contains all Simple FB Connect logic that is related to Facebook interaction.
  */
-class FacebookAuthFbManager {
+class FacebookAuthManager {
 
   protected $loggerFactory;
   protected $eventDispatcher;

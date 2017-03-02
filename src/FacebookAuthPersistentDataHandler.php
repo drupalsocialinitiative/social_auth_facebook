@@ -34,14 +34,24 @@ class FacebookAuthPersistentDataHandler implements PersistentDataInterface {
    * {@inheritdoc}
    */
   public function get($key) {
-    return $this->session->get($this->sessionPrefix . $key);
+    return $this->session->get($this->getSessionPrefix() . $key);
   }
 
   /**
    * {@inheritdoc}
    */
   public function set($key, $value) {
-    $this->session->set($this->sessionPrefix . $key, $value);
+    $this->session->set($this->getSessionPrefix() . $key, $value);
+  }
+
+  /**
+   * Gets the session prefix for the data handler.
+   *
+   * @return string
+   *   The session prefix.
+   */
+  public function getSessionPrefix() {
+    return $this->sessionPrefix;
   }
 
 }

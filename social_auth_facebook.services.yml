@@ -1,6 +1,6 @@
 services:
-  social_auth_facebook.fb_manager:
-    class: Drupal\social_auth_facebook\FacebookAuthFbManager
+  social_auth_facebook.manager:
+    class: Drupal\social_auth_facebook\FacebookAuthManager
     arguments:
       - '@logger.factory'
       - '@event_dispatcher'
@@ -8,33 +8,7 @@ services:
       - '@url_generator.non_bubbling'
       - '@social_auth_facebook.persistent_data_handler'
 
-  social_auth_facebook.user_manager:
-    class: Drupal\social_auth_facebook\FacebookAuthUserManager
-    arguments:
-      - '@config.factory'
-      - '@logger.factory'
-      - '@string_translation'
-      - '@event_dispatcher'
-      - '@entity_type.manager'
-      - '@entity_field.manager'
-      - '@token'
-      - '@transliteration'
-      - '@language_manager'
-
-  social_auth_facebook.post_login_manager:
-    class: Drupal\social_auth_facebook\FacebookAuthPostLoginManager
-    arguments:
-      - '@config.factory'
-      - '@router.request_context'
-      - '@path.validator'
-      - '@social_auth_facebook.persistent_data_handler'
-
   social_auth_facebook.persistent_data_handler:
     class: Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
     arguments:
       - '@session'
-
-  social_auth_facebook.fb_factory:
-    class: Drupal\social_auth_facebook\FacebookAuthFbFactory
-    arguments:
-      - '@plugin.network.manager'

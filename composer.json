@@ -1,9 +1,26 @@
 {
     "name": "drupal/social_auth_facebook",
-    "description": "Allows users to authenticate with their Facebook accounts.",
     "type": "drupal-module",
+    "description": "Social Auth integration for Facebook.",
+    "keywords": ["Drupal"],
     "license": "GPL-2.0+",
+    "homepage": "https://www.drupal.org/project/social_auth_facebook",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/social_auth_facebook",
+        "source": "http://cgit.drupalcode.org/social_auth_facebook"
+    },
     "require" : {
         "facebook/graph-sdk" : "~5.0"
-    }
+    },
+    "authors": [
+        {
+            "name": "Getulio Valentin Sánchez (gvso)",
+            "email": "valentin2507@gmail.com"
+        },
+        {
+            "name": "Utkarsh Dixit (denutkarsh)",
+            "email": "downloadplaza97@gmail.com"
+        }
+    ]
 }
