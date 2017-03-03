@@ -87,7 +87,7 @@ class FacebookAuthManager extends OAuth2Manager {
    * @return $this
    *   The current object.
    */
-  public function oAuthAuthenticate() {
+  public function authenticate() {
     $this->client->setDefaultAccessToken($this->getAccessToken());
     return $this;
   }

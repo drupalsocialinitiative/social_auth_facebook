@@ -125,7 +125,7 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    $this->facebookManager->setClient($facebook)->oAuthAuthenticate();
+    $this->facebookManager->setClient($facebook)->authenticate();
 
     // Checks that user authorized our app to access user's email address.
     if (!$this->facebookManager->checkPermission('email')) {
