@@ -109,7 +109,7 @@ class FacebookAuthManager extends OAuth2Manager {
 
       // URL where Facebook returned the user.
       $return_url = $this->urlGenerator->generateFromRoute(
-        'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
+        'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
 
       try {
         $access_token = $helper->getAccessToken($return_url);
@@ -119,7 +119,7 @@ class FacebookAuthManager extends OAuth2Manager {
         // Graph API returned an error.
         $this->loggerFactory
           ->get('social_auth_facebook')
-          ->error('Could not get Facebook access token. FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
+          ->error('Could not get Facebook access token. FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
         return NULL;
       }
 
@@ -127,7 +127,7 @@ class FacebookAuthManager extends OAuth2Manager {
         // Validation failed or other local issues.
         $this->loggerFactory
           ->get('social_auth_facebook')
-          ->error('Could not get Facebook access token. Exception: @message', array('@message' => ($ex->getMessage())));
+          ->error('Could not get Facebook access token. Exception: @message', ['@message' => ($ex->getMessage())]);
         return NULL;
       }
 
@@ -166,12 +166,12 @@ class FacebookAuthManager extends OAuth2Manager {
     catch (FacebookResponseException $ex) {
       $this->loggerFactory
         ->get('simple_fb_connect')
-        ->error('Could not load Facebook user profile: FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
+        ->error('Could not load Facebook user profile: FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
     }
     catch (FacebookSDKException $ex) {
       $this->loggerFactory
         ->get('simple_fb_connect')
-        ->error('Could not load Facebook user profile: FacebookSDKException: @message', array('@message' => ($ex->getMessage())));
+        ->error('Could not load Facebook user profile: FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
     }
 
     // Something went wrong.
@@ -189,10 +189,10 @@ class FacebookAuthManager extends OAuth2Manager {
 
     // Define the URL where Facebook should return the user.
     $return_url = $this->urlGenerator->generateFromRoute(
-    'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
+    'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
 
     // Define the initial array of Facebook permissions.
-    $scope = array('public_profile', 'email');
+    $scope = ['public_profile', 'email'];
 
     // Dispatch an event so that other modules can modify the permission scope.
     // Set the scope twice on the event: as the main subject but also in the
@@ -216,10 +216,10 @@ class FacebookAuthManager extends OAuth2Manager {
 
     // Define the URL where Facebook should return the user.
     $return_url = $this->urlGenerator->generateFromRoute(
-    'social_auth_facebook.return_from_fb', array(), array('absolute' => TRUE));
+    'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
 
     // Define the array of Facebook permissions to re-request.
-    $scope = array('public_profile', 'email');
+    $scope = ['public_profile', 'email'];
 
     // Generate and return the URL where we should redirect the user.
     return $login_helper->getReRequestUrl($return_url, $scope);
@@ -250,12 +250,12 @@ class FacebookAuthManager extends OAuth2Manager {
     catch (FacebookResponseException $ex) {
       $this->loggerFactory
         ->get('social_auth_facebook')
-        ->error('Could not check Facebook permissions: FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
+        ->error('Could not check Facebook permissions: FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
     }
     catch (FacebookSDKException $ex) {
       $this->loggerFactory
         ->get('social_auth_facebook')
-        ->error('Could not check Facebook permissions: FacebookSDKException: @message', array('@message' => ($ex->getMessage())));
+        ->error('Could not check Facebook permissions: FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
     }
 
     // We don't have permission or we got an exception during the API call.
@@ -295,12 +295,12 @@ class FacebookAuthManager extends OAuth2Manager {
     catch (FacebookResponseException $ex) {
       $this->loggerFactory
         ->get('social_auth_facebook')
-        ->error('Could not load Facebook profile picture URL. FacebookResponseException: @message', array('@message' => json_encode($ex->getMessage())));
+        ->error('Could not load Facebook profile picture URL. FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
     }
     catch (FacebookSDKException $ex) {
       $this->loggerFactory
         ->get('social_auth_facebook')
-        ->error('Could not load Facebook profile picture URL. FacebookSDKException: @message', array('@message' => ($ex->getMessage())));
+        ->error('Could not load Facebook profile picture URL. FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
     }
 
     // Something went wrong and the picture could not be loaded.
@@ -358,7 +358,7 @@ class FacebookAuthManager extends OAuth2Manager {
       return FALSE;
     }
     $dimensions = explode('x', $resolution);
-    return array('width' => $dimensions[0], 'height' => $dimensions[1]);
+    return ['width' => $dimensions[0], 'height' => $dimensions[1]];
   }
 
 }

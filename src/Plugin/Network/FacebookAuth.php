@@ -34,7 +34,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   /**
    * The Facebook Persistent Data Handler.
    *
-   * @var FacebookAuthPersistentDataHandler
+   * @var \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
    */
   protected $persistentDataHandler;
 
@@ -71,7 +71,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    *   The plugin_id for the plugin instance.
    * @param array $plugin_definition
    *   The plugin implementation definition.
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory object.

@@ -76,62 +76,62 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('social_auth_facebook.settings');
 
-    $form['fb_settings'] = array(
+    $form['fb_settings'] = [
       '#type' => 'details',
       '#title' => $this->t('Facebook App settings'),
       '#open' => TRUE,
-      '#description' => $this->t('You need to first create a Facebook App at <a href="@facebook-dev">@facebook-dev</a>', array('@facebook-dev' => 'https://developers.facebook.com/apps')),
-    );
+      '#description' => $this->t('You need to first create a Facebook App at <a href="@facebook-dev">@facebook-dev</a>', ['@facebook-dev' => 'https://developers.facebook.com/apps']),
+    ];
 
-    $form['fb_settings']['app_id'] = array(
+    $form['fb_settings']['app_id'] = [
       '#type' => 'textfield',
       '#required' => TRUE,
       '#title' => $this->t('Application ID'),
       '#default_value' => $config->get('app_id'),
       '#description' => $this->t('Copy the App ID of your Facebook App here. This value can be found from your App Dashboard.'),
-    );
+    ];
 
-    $form['fb_settings']['app_secret'] = array(
+    $form['fb_settings']['app_secret'] = [
       '#type' => 'textfield',
       '#required' => TRUE,
       '#title' => $this->t('App Secret'),
       '#default_value' => $config->get('app_secret'),
       '#description' => $this->t('Copy the App Secret of your Facebook App here. This value can be found from your App Dashboard.'),
-    );
+    ];
 
-    $form['fb_settings']['graph_version'] = array(
+    $form['fb_settings']['graph_version'] = [
       '#type' => 'number',
       '#min' => 0,
       '#step' => 'any',
       '#required' => TRUE,
       '#title' => $this->t('Facebook Graph API version'),
       '#default_value' => $config->get('graph_version'),
-      '#description' => $this->t('Copy the API Version of your Facebook App here. This value can be found from your App Dashboard. More information on API versions can be found at <a href="@facebook-changelog">Facebook Platform Changelog</a>', array('@facebook-changelog' => 'https://developers.facebook.com/docs/apps/changelog')),
-    );
+      '#description' => $this->t('Copy the API Version of your Facebook App here. This value can be found from your App Dashboard. More information on API versions can be found at <a href="@facebook-changelog">Facebook Platform Changelog</a>', ['@facebook-changelog' => 'https://developers.facebook.com/docs/apps/changelog']),
+    ];
 
-    $form['fb_settings']['oauth_redirect_url'] = array(
+    $form['fb_settings']['oauth_redirect_url'] = [
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#title' => $this->t('Valid OAuth redirect URIs'),
       '#description' => $this->t('Copy this value to <em>Valid OAuth redirect URIs</em> field of your Facebook App settings.'),
       '#default_value' => $GLOBALS['base_url'] . '/user/login/facebook/callback',
-    );
+    ];
 
-    $form['fb_settings']['app_domains'] = array(
+    $form['fb_settings']['app_domains'] = [
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#title' => $this->t('App Domains'),
       '#description' => $this->t('Copy this value to <em>App Domains</em> field of your Facebook App settings.'),
       '#default_value' => $this->requestContext->getHost(),
-    );
+    ];
 
-    $form['fb_settings']['site_url'] = array(
+    $form['fb_settings']['site_url'] = [
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#title' => $this->t('Site URL'),
       '#description' => $this->t('Copy this value to <em>Site URL</em> field of your Facebook App settings.'),
       '#default_value' => $GLOBALS['base_url'],
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }
