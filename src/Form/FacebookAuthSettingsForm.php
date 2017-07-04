@@ -111,7 +111,6 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
 
     $form['fb_settings']['data_point'] = [
       '#type' => 'textfield',
-      '#required' => TRUE,
       '#title' => $this->t('Data Point To Be Collected'),
       '#default_value' => 'name,email',
       '#description' => $this->t('Define the data point to be stored in database, data points must be separated by comma.'),

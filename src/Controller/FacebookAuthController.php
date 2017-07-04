@@ -100,6 +100,9 @@ class FacebookAuthController extends ControllerBase {
    * Redirects the user to FB for authentication.
    */
   public function redirectToFb() {
+
+    // This i
+
     /* @var \Facebook\Facebook|false $facebook */
     $facebook = $this->networkManager->createInstance('social_auth_facebook')->getSdk();
 
