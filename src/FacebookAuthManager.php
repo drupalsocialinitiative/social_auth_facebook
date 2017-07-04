@@ -12,6 +12,7 @@ use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
+
 /**
  * Contains all Simple FB Connect logic that is related to Facebook interaction.
  */

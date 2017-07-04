@@ -9,8 +9,8 @@ use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
 use Drupal\social_auth_facebook\Settings\FacebookAuthSettings;
-use Facebook\Facebook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use League\OAuth2\Client\Provider\Facebook;
 
 /**
  * Defines a Network Plugin for Social Auth Facebook.
@@ -103,24 +103,23 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    */
   protected function initSdk() {
 
-    $class_name = '\Facebook\Facebook';
+    $class_name = '\League\OAuth2\Client\Provider\Facebook';
     if (!class_exists($class_name)) {
-      throw new SocialApiException(sprintf('The PHP SDK for Facebook could not be found. Class: %s.', $class_name));
+      throw new SocialApiException(sprintf('The Facebook Library for the league oAuth not found. Class: %s.', $class_name));
     }
     /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
     $settings = $this->settings;
 
     if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
-      $facebook_settings = [
-        'app_id' => $settings->getAppId(),
-        'app_secret' => $settings->getAppSecret(),
-        'default_graph_version' => 'v' . $settings->getGraphVersion(),
-        'persistent_data_handler' => $this->persistentDataHandler,
-        'http_client_handler' => $this->getHttpClient(),
+      $league_settings = [
+        'clientId'          => $settings->getAppId(),
+        'clientSecret'      => $settings->getAppSecret(),
+        'redirectUri'       => $this->getHttpClient(),
+        'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
       ];
 
-      return new Facebook($facebook_settings);
+      return new Facebook($league_settings);
     }
 
     return FALSE;
