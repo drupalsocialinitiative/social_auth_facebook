@@ -115,7 +115,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       $league_settings = [
         'clientId'          => $settings->getAppId(),
         'clientSecret'      => $settings->getAppSecret(),
-        'redirectUri'       => $this->getHttpClient(),
+        'redirectUri'       => $this->getRedirectUri(),
         'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
       ];
 
@@ -148,30 +148,6 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
     }
 
     return TRUE;
-  }
-
-  /**
-   * Returns HTTP client to be used with Facebook SDK.
-   *
-   * Facebook SDK v5 uses the following autodetect logic for determining the
-   * HTTP client:
-   * 1. If cURL extension is loaded, use it.
-   * 2. If cURL was not loaded but Guzzle is found, use it.
-   * 3. Fallback to FacebookStreamHttpClient.
-   *
-   * Drupal 8 ships with Guzzle v6 but Facebook SDK v5 works only
-   * with Guzzle v5. Therefore we need to change the autodetect logic
-   * so that we're first using cURL and if that is not available, we
-   * fallback directly to FacebookStreamHttpClient.
-   *
-   * @return string
-   *   Client that should be used with Facebook SDK.
-   */
-  protected function getHttpClient() {
-    if (extension_loaded('curl')) {
-      return 'curl';
-    }
-    return 'stream';
   }
 
 }
