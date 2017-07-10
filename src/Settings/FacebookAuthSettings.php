@@ -37,6 +37,14 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
    */
   protected $defaultToken;
 
+
+  /**
+   * The data point to be collected.
+   *
+   * @var string
+   */
+  protected $dataPoints;
+
   /**
    * {@inheritdoc}
    */
@@ -65,6 +73,16 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
       $this->graphVersion = $this->config->get('graph_version');
     }
     return $this->graphVersion;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDataPoints() {
+    if (!$this->dataPoints) {
+      $this->dataPoints = $this->config->get('data_points');
+    }
+    return $this->dataPoints;
   }
 
 }
