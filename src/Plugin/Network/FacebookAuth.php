@@ -115,10 +115,11 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       $league_settings = [
         'clientId'          => $settings->getAppId(),
         'clientSecret'      => $settings->getAppSecret(),
-        'redirectUri'       => $this->getRedirectUri(),
+        'redirectUri'       => 'http://localhost/gsoctest/drupal-8.3.3/user/login/facebook/callback',
         'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
       ];
 
+      //throw new SocialApiException(sprintf('The Facebook Library for the league oAuth not found. Class: %s.', $settings->getRedirectUri()));
       return new Facebook($league_settings);
     }
 

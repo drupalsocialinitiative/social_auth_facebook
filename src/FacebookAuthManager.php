@@ -59,7 +59,19 @@ class FacebookAuthManager extends OAuth2Manager {
    * @var \Facebook\Facebook
    */
   protected $client;
+  /**
+   * The Facebook access token.
+   *
+   * @var \Facebook\Facebook
+   */
+  protected $token;
 
+  /**
+   * The Facebook access token.
+   *
+   * @var \Facebook\Facebook
+   */
+  protected $user;
   /**
    * Constructor.
    *
@@ -89,63 +101,12 @@ class FacebookAuthManager extends OAuth2Manager {
    *   The current object.
    */
   public function authenticate() {
-    $this->client->setDefaultAccessToken($this->getAccessToken());
-    return $this;
-  }
 
-  /**
-   * Gets the user's access token from Facebook.
-   *
-   * This method can only be called from route
-   * social_auth_facebook.return_from_fb since RedirectLoginHelper will use the
-   * URL parameters set by Facebook.
-   *
-   * @return \Facebook\Authentication\AccessToken|null
-   *   User's Facebook access token, if it could be read from Facebook.
-   *   Null, otherwise.
-   */
-  public function getAccessToken() {
-    if (!$this->accessToken) {
-      $helper = $this->client->getRedirectLoginHelper();
+   $this->token = $this->client->getAccessToken('authorization_code', [
+              'code' => $_GET['code']
+   ]);
 
-      // URL where Facebook returned the user.
-      $return_url = $this->urlGenerator->generateFromRoute(
-        'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
-
-      try {
-        $access_token = $helper->getAccessToken($return_url);
-      }
-
-      catch (FacebookResponseException $ex) {
-        // Graph API returned an error.
-        $this->loggerFactory
-          ->get('social_auth_facebook')
-          ->error('Could not get Facebook access token. FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
-        return NULL;
-      }
-
-      catch (FacebookSDKException $ex) {
-        // Validation failed or other local issues.
-        $this->loggerFactory
-          ->get('social_auth_facebook')
-          ->error('Could not get Facebook access token. Exception: @message', ['@message' => ($ex->getMessage())]);
-        return NULL;
-      }
-
-      // If login was OK on Facebook, we now have user's access token.
-      if (isset($access_token)) {
-        $this->accessToken = $access_token;
-      }
-      else {
-        // If we're still here, user denied the login request on Facebook.
-        $this->loggerFactory
-          ->get('social_auth_facebook')
-          ->error('Could not get Facebook access token. User cancelled the dialog in Facebook or return URL was not valid.');
-        return NULL;
-      }
-    }
-
-    return $this->accessToken;
+   return $this->token;
   }
 
   /**
@@ -158,25 +119,10 @@ class FacebookAuthManager extends OAuth2Manager {
    *   GraphNode representing the user
    *   False if exception was thrown
    */
-  public function getUserInfo($fields = 'id,name,email') {
-    try {
-      return $this->getClient()
-        ->get('/me?fields=' . $fields)
-        ->getGraphNode();
-    }
-    catch (FacebookResponseException $ex) {
-      $this->loggerFactory
-        ->get('simple_fb_connect')
-        ->error('Could not load Facebook user profile: FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
-    }
-    catch (FacebookSDKException $ex) {
-      $this->loggerFactory
-        ->get('simple_fb_connect')
-        ->error('Could not load Facebook user profile: FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
-    }
+  public function getUserInfo() {
 
-    // Something went wrong.
-    return FALSE;
+    $this->user = $this->client->getResourceOwner($this->token);
+    return $this->user;
   }
 
   /**
@@ -186,24 +132,12 @@ class FacebookAuthManager extends OAuth2Manager {
    *   Absolute Facebook login URL where user will be redirected
    */
   public function getFbLoginUrl() {
-    $login_helper = $this->client->getRedirectLoginHelper();
-
-    // Define the URL where Facebook should return the user.
-    $return_url = $this->urlGenerator->generateFromRoute(
-    'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
-
-    // Define the initial array of Facebook permissions.
-    $scope = ['public_profile', 'email'];
-
-    // Dispatch an event so that other modules can modify the permission scope.
-    // Set the scope twice on the event: as the main subject but also in the
-    // list of arguments.
-    $e = new GenericEvent($scope, ['scope' => $scope]);
-    $event = $this->eventDispatcher->dispatch('social_auth_facebook.scope', $e);
-    $final_scope = $event->getArgument('scope');
+    $login_helper = $this->client->getAuthorizationUrl([
+      'scope' => ['email', 'public_profile'],
+    ]);
 
     // Generate and return the URL where we should redirect the user.
-    return $login_helper->getLoginUrl($return_url, $final_scope);
+    return $login_helper;
   }
 
   /**
@@ -224,110 +158,6 @@ class FacebookAuthManager extends OAuth2Manager {
 
     // Generate and return the URL where we should redirect the user.
     return $login_helper->getReRequestUrl($return_url, $scope);
-  }
-
-  /**
-   * Makes an API call to check if user has granted given permission.
-   *
-   * @param string $permission_to_check
-   *   Permission to check.
-   *
-   * @return bool
-   *   True if user has granted given permission.
-   *   False otherwise.
-   */
-  public function checkPermission($permission_to_check) {
-    try {
-      $permissions = $this->client
-        ->get('/me/permissions')
-        ->getGraphEdge()
-        ->asArray();
-      foreach ($permissions as $permission) {
-        if ($permission['permission'] == $permission_to_check && $permission['status'] == 'granted') {
-          return TRUE;
-        }
-      }
-    }
-    catch (FacebookResponseException $ex) {
-      $this->loggerFactory
-        ->get('social_auth_facebook')
-        ->error('Could not check Facebook permissions: FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
-    }
-    catch (FacebookSDKException $ex) {
-      $this->loggerFactory
-        ->get('social_auth_facebook')
-        ->error('Could not check Facebook permissions: FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
-    }
-
-    // We don't have permission or we got an exception during the API call.
-    return FALSE;
-  }
-
-  /**
-   * Makes an API call to get the URL of user's Facebook profile picture.
-   *
-   * @return string|false
-   *   Absolute URL of the profile picture
-   *   False if user did not have a profile picture on FB or an error occured.
-   */
-  public function getFbProfilePicUrl() {
-    // Determine preferred resolution for the profile picture.
-    $resolution = $this->getPreferredResolution();
-
-    // Generate FB API query.
-    $query = '/me/picture?redirect=false';
-    if (is_array($resolution)) {
-      $query .= '&width=' . $resolution['width'] . '&height=' . $resolution['height'];
-    }
-
-    // Call Graph API to request profile picture.
-    try {
-      $graph_node = $this->client->get($query)->getGraphNode();
-
-      // We don't download the FB default silhouettes, only real pictures.
-      $is_silhouette = (bool) $graph_node->getField('is_silhouette');
-      if ($is_silhouette) {
-        return FALSE;
-      }
-
-      // We have a real picture, return URL for it.
-      return $graph_node->getField('url');
-    }
-    catch (FacebookResponseException $ex) {
-      $this->loggerFactory
-        ->get('social_auth_facebook')
-        ->error('Could not load Facebook profile picture URL. FacebookResponseException: @message', ['@message' => json_encode($ex->getMessage())]);
-    }
-    catch (FacebookSDKException $ex) {
-      $this->loggerFactory
-        ->get('social_auth_facebook')
-        ->error('Could not load Facebook profile picture URL. FacebookSDKException: @message', ['@message' => ($ex->getMessage())]);
-    }
-
-    // Something went wrong and the picture could not be loaded.
-    return FALSE;
-  }
-
-  /**
-   * Returns user's email address from Facebook profile.
-   *
-   * @param \Facebook\GraphNodes\GraphNode $fb_profile
-   *   GraphNode object representing user's Facebook profile.
-   *
-   * @return string|false
-   *   User's email address if found
-   *   False otherwise
-   */
-  public function getEmail(GraphNode $fb_profile) {
-    if ($email = $fb_profile->getField('email')) {
-      return $email;
-    }
-
-    // Email address was not found. Log error and return FALSE.
-    $this->loggerFactory
-      ->get('social_auth_facebook')
-      ->error('No email address in Facebook user profile');
-    return FALSE;
   }
 
   /**

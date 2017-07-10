@@ -116,9 +116,7 @@ class FacebookAuthController extends ControllerBase {
     // If the user did not have email permission granted on previous attempt,
     // we use the re-request URL requesting only the email address.
     $fb_login_url = $this->facebookManager->getFbLoginUrl();
-    if ($this->persistentDataHandler->get('reprompt')) {
-      $fb_login_url = $this->facebookManager->getFbReRequestUrl();
-    }
+
 
     return new TrustedRedirectResponse($fb_login_url);
   }
@@ -147,12 +145,6 @@ class FacebookAuthController extends ControllerBase {
 
     $this->facebookManager->setClient($facebook)->authenticate();
 
-    // Checks that user authorized our app to access user's email address.
-    if (!$this->facebookManager->checkPermission('email')) {
-      drupal_set_message($this->t('Facebook login failed. This site requires permission to get your email address from Facebook. Please try again.'), 'error');
-      $this->persistentDataHandler->set('reprompt', TRUE);
-      return $this->redirect('user.login');
-    }
 
     // Gets user's FB profile from Facebook API.
     if (!$fb_profile = $this->facebookManager->getUserInfo()) {
@@ -161,7 +153,7 @@ class FacebookAuthController extends ControllerBase {
     }
 
     // Gets user's email from the FB profile.
-    if (!$email = $this->facebookManager->getEmail($fb_profile)) {
+    if (!$email = $this->facebookManager->getUserInfo()->getEmail()) {
       drupal_set_message($this->t('Facebook login failed. This site requires permission to get your email address.'), 'error');
       return $this->redirect('user.login');
     }
@@ -170,7 +162,7 @@ class FacebookAuthController extends ControllerBase {
     $this->persistentDataHandler->set('access_token', $this->facebookManager->getAccessToken());
 
     // If user information could be retrieved.
-    return $this->userManager->authenticateUser($email, $fb_profile->getField('name'), $fb_profile->getField('id'), $this->facebookManager->getFbProfilePicUrl());
+    return $this->userManager->authenticateUser($fb_profile->getName(), $email, 'social_auth_facebook', $fb_profile->getId(), $fb_profile->getPictureUrl(), '');
   }
 
 }

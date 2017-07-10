@@ -39,4 +39,12 @@ interface FacebookAuthSettingsInterface {
    */
   public function getDataPoints();
 
+  /**
+   * Gets the redirect URI for social_provider.
+   *
+   * @return string
+   *   The version.
+   */
+  public function getRedirectUri();
+
 }
