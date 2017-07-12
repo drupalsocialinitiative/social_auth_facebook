@@ -3,15 +3,10 @@
 namespace Drupal\social_auth_facebook;
 
 use Drupal\social_auth\AuthManager\OAuth2Manager;
-use Facebook\Exceptions\FacebookResponseException;
-use Facebook\Exceptions\FacebookSDKException;
-use Facebook\GraphNodes\GraphNode;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
-
 
 /**
  * Contains all Simple FB Connect logic that is related to Facebook interaction.
@@ -72,6 +67,7 @@ class FacebookAuthManager extends OAuth2Manager {
    * @var \Facebook\Facebook
    */
   protected $user;
+
   /**
    * Constructor.
    *
@@ -101,26 +97,19 @@ class FacebookAuthManager extends OAuth2Manager {
    *   The current object.
    */
   public function authenticate() {
+    $this->token = $this->client->getAccessToken('authorization_code',
+      ['code' => $_GET['code']]);
 
-   $this->token = $this->client->getAccessToken('authorization_code', [
-              'code' => $_GET['code']
-   ]);
-
-   return $this->token;
+    return $this->token;
   }
 
   /**
-   * Makes an API call to get user's Facebook profile.
+   * Gets the data by using the access token returned.
    *
-   * @param string $fields
-   *   The fields to retrieve.
-   *
-   * @return \Facebook\GraphNodes\GraphNode|false
-   *   GraphNode representing the user
-   *   False if exception was thrown
+   * @return array
+   *   User Info returned by the facebook.
    */
   public function getUserInfo() {
-
     $this->user = $this->client->getResourceOwner($this->token);
     return $this->user;
   }
@@ -132,32 +121,25 @@ class FacebookAuthManager extends OAuth2Manager {
    *   Absolute Facebook login URL where user will be redirected
    */
   public function getFbLoginUrl() {
-    $login_helper = $this->client->getAuthorizationUrl([
+    $login_url = $this->client->getAuthorizationUrl([
       'scope' => ['email', 'public_profile'],
     ]);
 
     // Generate and return the URL where we should redirect the user.
-    return $login_helper;
+    return $login_url;
   }
 
   /**
-   * Returns the Facebook login URL for re-requesting email permission.
+   * Returns the Facebook login URL where user will be redirected.
    *
    * @return string
    *   Absolute Facebook login URL where user will be redirected
    */
-  public function getFbReRequestUrl() {
-    $login_helper = $this->client->getRedirectLoginHelper();
-
-    // Define the URL where Facebook should return the user.
-    $return_url = $this->urlGenerator->generateFromRoute(
-    'social_auth_facebook.return_from_fb', [], ['absolute' => TRUE]);
-
-    // Define the array of Facebook permissions to re-request.
-    $scope = ['public_profile', 'email'];
+  public function getState() {
+    $state = $this->client->getState();
 
     // Generate and return the URL where we should redirect the user.
-    return $login_helper->getReRequestUrl($return_url, $scope);
+    return $state;
   }
 
   /**

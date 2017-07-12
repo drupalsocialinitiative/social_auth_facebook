@@ -6,10 +6,12 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\social_api\Plugin\NetworkManager;
 use Drupal\social_auth\SocialAuthUserManager;
 use Drupal\social_auth_facebook\FacebookAuthManager;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Returns responses for Simple FB Connect module routes.
@@ -52,6 +54,20 @@ class FacebookAuthController extends ControllerBase {
   private $persistentDataHandler;
 
   /**
+   * The data point to be collected.
+   *
+   * @var string
+   */
+  private $dataPoints;
+
+  /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $loggerFactory;
+
+  /**
    * FacebookAuthController constructor.
    *
    * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
@@ -64,13 +80,17 @@ class FacebookAuthController extends ControllerBase {
    *   Used to access GET parameters.
    * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
    *   FacebookAuthPersistentDataHandler object.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   Used for logging errors.
    */
-  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, FacebookAuthManager $facebook_manager, RequestStack $request, FacebookAuthPersistentDataHandler $persistent_data_handler) {
+  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, FacebookAuthManager $facebook_manager, RequestStack $request, FacebookAuthPersistentDataHandler $persistent_data_handler, LoggerChannelFactoryInterface $logger_factory) {
+
     $this->networkManager = $network_manager;
     $this->userManager = $user_manager;
     $this->facebookManager = $facebook_manager;
     $this->request = $request;
     $this->persistentDataHandler = $persistent_data_handler;
+    $this->loggerFactory = $logger_factory;
 
     // Sets the plugin id.
     $this->userManager->setPluginId('social_auth_facebook');
@@ -79,6 +99,7 @@ class FacebookAuthController extends ControllerBase {
     $this->userManager->setSessionKeysToNullify([
       $this->persistentDataHandler->getSessionPrefix() . 'access_token',
     ]);
+    $this->setting = $this->config('social_auth_facebook.settings');
   }
 
   /**
@@ -90,7 +111,8 @@ class FacebookAuthController extends ControllerBase {
       $container->get('social_auth.user_manager'),
       $container->get('social_auth_facebook.manager'),
       $container->get('request_stack'),
-      $container->get('social_auth_facebook.persistent_data_handler')
+      $container->get('social_auth_facebook.persistent_data_handler'),
+      $container->get('logger.factory')
     );
   }
 
@@ -100,7 +122,7 @@ class FacebookAuthController extends ControllerBase {
    * Redirects the user to FB for authentication.
    */
   public function redirectToFb() {
-    /* @var \Facebook\Facebook|false $facebook */
+    /* @var \League\OAuth2\Client\Provider\Facebook false $facebook */
     $facebook = $this->networkManager->createInstance('social_auth_facebook')->getSdk();
 
     // If facebook client could not be obtained.
@@ -117,6 +139,9 @@ class FacebookAuthController extends ControllerBase {
     // we use the re-request URL requesting only the email address.
     $fb_login_url = $this->facebookManager->getFbLoginUrl();
 
+    $state = $this->facebookManager->getState();
+
+    $this->persistentDataHandler->set('oAuth2State', $state);
 
     return new TrustedRedirectResponse($fb_login_url);
   }
@@ -134,7 +159,7 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    /* @var \Facebook\Facebook|false $facebook */
+    /* @var \League\OAuth2\Client\Provider\Facebook false $facebook */
     $facebook = $this->networkManager->createInstance('social_auth_facebook')->getSdk();
 
     // If facebook client could not be obtained.
@@ -143,8 +168,15 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    $this->facebookManager->setClient($facebook)->authenticate();
+    $state = $this->persistentDataHandler->get('oAuth2State');
 
+    if (empty($_GET['state']) || ($_GET['state'] !== $state)) {
+      unset($_SESSION['oauth2state']);
+      drupal_set_message($this->t('Facebook login failed. Unvalid oAuth2 State.'), 'error');
+      return $this->redirect('user.login');
+    }
+
+    $this->facebookManager->setClient($facebook)->authenticate();
 
     // Gets user's FB profile from Facebook API.
     if (!$fb_profile = $this->facebookManager->getUserInfo()) {
@@ -158,11 +190,41 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    // Saves access token to session so that event subscribers can call FB API.
+    $data = [];
+
+    $data_points = explode(',', $this->getDataPoints());
+
+    foreach ($data_points as $data_point) {
+      switch ($data_point) {
+        case 'email': $data['email'] = $fb_profile->getEmail();
+          break;
+
+        case 'name': $data['name'] = $fb_profile->getName();
+          break;
+
+        default: $this->loggerFactory->get($this->userManager->getPluginId())->error(
+          'Failed to fetch Data Point. Invalid Data Point: @$data_point', ['@$data_point' => $data_point]);
+      }
+    }
+
+    // Saves access token to session.
     $this->persistentDataHandler->set('access_token', $this->facebookManager->getAccessToken());
 
     // If user information could be retrieved.
-    return $this->userManager->authenticateUser($fb_profile->getName(), $email, 'social_auth_facebook', $fb_profile->getId(), $fb_profile->getPictureUrl(), '');
+    return $this->userManager->authenticateUser($fb_profile->getName(), $email, 'social_auth_facebook', $fb_profile->getId(), $fb_profile->getPictureUrl(), json_encode($data));
+  }
+
+  /**
+   * Gets the data Point defined the settings form page.
+   *
+   * @return string
+   *   Data points separtated by comma.
+   */
+  public function getDataPoints() {
+    if (!$this->dataPoints) {
+      $this->dataPoints = $this->config('social_auth_facebook.settings')->get('data_points');
+    }
+    return $this->dataPoints;
   }
 
 }

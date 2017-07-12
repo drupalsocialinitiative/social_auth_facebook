@@ -38,13 +38,6 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
   protected $defaultToken;
 
   /**
-   * The data point to be collected.
-   *
-   * @var string
-   */
-  protected $dataPoints;
-
-  /**
    * The redirect URL for social_auth implmeneter.
    *
    * @var string
@@ -81,23 +74,4 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
     return $this->graphVersion;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDataPoints() {
-    if (!$this->dataPoints) {
-      $this->dataPoints = $this->config->get('data_points');
-    }
-    return $this->dataPoints;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRedirectUri() {
-    if (!$this->oauthRedirectUrl) {
-      $this->oauthRedirectUrl = $this->config->get('oauth_redirect_url');
-    }
-    return $this->oauthRedirectUrl;
-  }
 }

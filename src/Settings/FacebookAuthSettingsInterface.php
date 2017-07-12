@@ -31,20 +31,4 @@ interface FacebookAuthSettingsInterface {
    */
   public function getGraphVersion();
 
-  /**
-   * Gets the data point to be collect
-   *
-   * @return string
-   *   The version.
-   */
-  public function getDataPoints();
-
-  /**
-   * Gets the redirect URI for social_provider.
-   *
-   * @return string
-   *   The version.
-   */
-  public function getRedirectUri();
-
 }
