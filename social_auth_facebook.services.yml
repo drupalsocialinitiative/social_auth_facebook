@@ -6,9 +6,5 @@ services:
       - '@event_dispatcher'
       - '@entity_field.manager'
       - '@url_generator.non_bubbling'
-      - '@social_auth_facebook.persistent_data_handler'
+      - '@social_auth.social_auth_data_handler'
 
-  social_auth_facebook.persistent_data_handler:
-    class: Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
-    arguments:
-      - '@session'

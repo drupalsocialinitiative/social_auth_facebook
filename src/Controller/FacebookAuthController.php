@@ -9,7 +9,7 @@ use Drupal\social_auth_facebook\FacebookAuthManager;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
-use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
+use Drupal\social_auth\SocialAuthDataHandler;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
@@ -47,11 +47,11 @@ class FacebookAuthController extends ControllerBase {
   private $request;
 
   /**
-   * The Facebook Persistent Data Handler.
+   * The Social Auth Data Handler.
    *
-   * @var \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
+   * @var \Drupal\social_auth\SocialAuthDataHandler
    */
-  private $persistentDataHandler;
+  private $dataHandler;
 
   /**
    * The data point to be collected.
@@ -78,27 +78,29 @@ class FacebookAuthController extends ControllerBase {
    *   Used to manage authentication methods.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request
    *   Used to access GET parameters.
-   * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
-   *   FacebookAuthPersistentDataHandler object.
+   * @param \Drupal\social_auth\SocialAuthDataHandler $social_auth_data_handler
+   *   SocialAuthDataHandler object.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   Used for logging errors.
    */
-  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, FacebookAuthManager $facebook_manager, RequestStack $request, FacebookAuthPersistentDataHandler $persistent_data_handler, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, FacebookAuthManager $facebook_manager, RequestStack $request, SocialAuthDataHandler $social_auth_data_handler, LoggerChannelFactoryInterface $logger_factory) {
 
     $this->networkManager = $network_manager;
     $this->userManager = $user_manager;
     $this->facebookManager = $facebook_manager;
     $this->request = $request;
-    $this->persistentDataHandler = $persistent_data_handler;
+    $this->dataHandler = $social_auth_data_handler;
     $this->loggerFactory = $logger_factory;
+
+    // Sets session prefix for data handler.
+    $this->dataHandler->getSessionPrefix('social_auth_google');
 
     // Sets the plugin id.
     $this->userManager->setPluginId('social_auth_facebook');
 
     // Sets the session keys to nullify if user could not logged in.
-    $this->userManager->setSessionKeysToNullify([
-      $this->persistentDataHandler->getSessionPrefix() . 'access_token',
-    ]);
+    $this->userManager->setSessionKeysToNullify(['access_token']);
+
     $this->setting = $this->config('social_auth_facebook.settings');
   }
 
@@ -111,7 +113,7 @@ class FacebookAuthController extends ControllerBase {
       $container->get('social_auth.user_manager'),
       $container->get('social_auth_facebook.manager'),
       $container->get('request_stack'),
-      $container->get('social_auth_facebook.persistent_data_handler'),
+      $container->get('social_auth.social_auth_data_handler'),
       $container->get('logger.factory')
     );
   }
@@ -134,14 +136,16 @@ class FacebookAuthController extends ControllerBase {
     // Facebook service was returned, inject it to $fbManager.
     $this->facebookManager->setClient($facebook);
 
+    $data_points = explode(',', $this->getDataPoints());
+
     // Generates the URL where the user will be redirected for FB login.
     // If the user did not have email permission granted on previous attempt,
     // we use the re-request URL requesting only the email address.
-    $fb_login_url = $this->facebookManager->getFbLoginUrl();
+    $fb_login_url = $this->facebookManager->getFbLoginUrl($data_points);
 
     $state = $this->facebookManager->getState();
 
-    $this->persistentDataHandler->set('oAuth2State', $state);
+    $this->dataHandler->set('oAuth2State', $state);
 
     return new TrustedRedirectResponse($fb_login_url);
   }
@@ -168,10 +172,10 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    $state = $this->persistentDataHandler->get('oAuth2State');
+    $state = $this->dataHandler->get('oAuth2State');
 
     if (empty($_GET['state']) || ($_GET['state'] !== $state)) {
-      unset($_SESSION['oauth2state']);
+      $this->userManager->setSessionKeysToNullify(['oauth2state']);
       drupal_set_message($this->t('Facebook login failed. Unvalid oAuth2 State.'), 'error');
       return $this->redirect('user.login');
     }
@@ -208,7 +212,7 @@ class FacebookAuthController extends ControllerBase {
     }
 
     // Saves access token to session.
-    $this->persistentDataHandler->set('access_token', $this->facebookManager->getAccessToken());
+    $this->dataHandler->set('access_token', $this->facebookManager->getAccessToken());
 
     // If user information could be retrieved.
     return $this->userManager->authenticateUser($fb_profile->getName(), $email, 'social_auth_facebook', $fb_profile->getId(), $fb_profile->getPictureUrl(), json_encode($data));

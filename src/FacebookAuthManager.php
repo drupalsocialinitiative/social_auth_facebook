@@ -51,20 +51,20 @@ class FacebookAuthManager extends OAuth2Manager {
   /**
    * The Facebook client object.
    *
-   * @var \Facebook\Facebook
+   * @var \League\OAuth2\Client\Provider\Facebook
    */
   protected $client;
   /**
    * The Facebook access token.
    *
-   * @var \Facebook\Facebook
+   * @var \League\OAuth2\Client\Provider\Facebook
    */
   protected $token;
 
   /**
    * The Facebook access token.
    *
-   * @var \Facebook\Facebook
+   * @var \League\OAuth2\Client\Provider\Facebook
    */
   protected $user;
 
@@ -79,15 +79,12 @@ class FacebookAuthManager extends OAuth2Manager {
    *   Used for accessing Drupal user picture preferences.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
    *   Used for generating absoulute URLs.
-   * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
-   *   Used for reading data from and writing data to session.
    */
-  public function __construct(LoggerChannelFactoryInterface $logger_factory, EventDispatcherInterface $event_dispatcher, EntityFieldManagerInterface $entity_field_manager, UrlGeneratorInterface $url_generator, FacebookAuthPersistentDataHandler $persistent_data_handler) {
-    $this->loggerFactory         = $logger_factory;
-    $this->eventDispatcher       = $event_dispatcher;
-    $this->entityFieldManager    = $entity_field_manager;
-    $this->urlGenerator          = $url_generator;
-    $this->persistentDataHandler = $persistent_data_handler;
+  public function __construct(LoggerChannelFactoryInterface $logger_factory, EventDispatcherInterface $event_dispatcher, EntityFieldManagerInterface $entity_field_manager, UrlGeneratorInterface $url_generator) {
+    $this->loggerFactory      = $logger_factory;
+    $this->eventDispatcher    = $event_dispatcher;
+    $this->entityFieldManager = $entity_field_manager;
+    $this->urlGenerator       = $url_generator;
   }
 
   /**
@@ -120,13 +117,40 @@ class FacebookAuthManager extends OAuth2Manager {
    * @return string
    *   Absolute Facebook login URL where user will be redirected
    */
-  public function getFbLoginUrl() {
+  public function getFbLoginUrl($data_points) {
+    $scopes = $this->checkForScopes($data_points);
     $login_url = $this->client->getAuthorizationUrl([
-      'scope' => ['email', 'public_profile'],
+      'scope' => $scopes,
     ]);
 
     // Generate and return the URL where we should redirect the user.
     return $login_url;
+  }
+
+    /**
+   * Returns scopes required for data point defined by administator.
+   *
+   * @return array
+   *   scopes for authorization URL.
+   */
+  protected function checkForScopes($data_points) {
+    $scopes = ['email', 'public_profile'];
+
+    // Scopes required for data point.
+    $scopeForDataPoint = [
+      "name"   => '',
+      "email"  => '',
+    ];
+
+    foreach ($data_points as $data_point) {
+      $scope = $scopeForDataPoint[$data_point];
+      // If scope is not in array, then add it.
+      if (!in_array($scope, $scopes)) {
+        array_push($scopes, $scope);
+      }
+    }
+
+    return $scopes;
   }
 
   /**

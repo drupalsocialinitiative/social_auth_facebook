@@ -5,7 +5,7 @@ namespace Drupal\social_auth_facebook\Plugin\Network;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
+use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
 use Drupal\social_auth_facebook\Settings\FacebookAuthSettings;
@@ -32,11 +32,11 @@ use League\OAuth2\Client\Provider\Facebook;
 class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
   /**
-   * The Facebook Persistent Data Handler.
+   * The Social Auth Data Handler.
    *
-   * @var \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
+   * @var \Drupal\social_auth\SocialAuthDataHandler
    */
-  protected $persistentDataHandler;
+  protected $dataHandler;
 
   /**
    * The logger factory.
@@ -50,7 +50,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('social_auth_facebook.persistent_data_handler'),
+      $container->get('social_auth.social_auth_data_handler'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -63,8 +63,8 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   /**
    * FacebookAuth constructor.
    *
-   * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
-   *   The persistent data handler.
+   * @param \Drupal\social_auth\SocialAuthDataHandler $data_handler
+   *   The data handler.
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -78,7 +78,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    */
-  public function __construct(FacebookAuthPersistentDataHandler $persistent_data_handler,
+  public function __construct(SocialAuthDataHandler $data_handler,
                               array $configuration,
                               $plugin_id,
                               array $plugin_definition,
@@ -88,14 +88,14 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory);
 
-    $this->persistentDataHandler = $persistent_data_handler;
+    $this->dataHandler = $data_handler;
     $this->loggerFactory = $logger_factory;
   }
 
   /**
    * Sets the underlying SDK library.
    *
-   * @return \Facebook\Facebook
+   * @return \League\OAuth2\Client\Provider\Facebook
    *   The initialized 3rd party library instance.
    *
    * @throws SocialApiException
