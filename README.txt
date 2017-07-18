@@ -29,7 +29,7 @@ to /user/login/facebook, so theming and customizing the button or link
 is very flexible.
 
 When the user opens the /user/login/facebook link, it automatically takes
-user to Facebook for authentication. Google then returns the user to
+user to Facebook for authentication. Facebook then returns the user to
 Drupal site. If we have an existing Drupal user with the same email address
 provided by Facebook, that user is logged in. Otherwise a new Drupal user is
 created.
