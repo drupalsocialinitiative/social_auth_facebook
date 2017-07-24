@@ -199,14 +199,11 @@ class FacebookAuthController extends ControllerBase {
     $data_points = explode(',', $this->getDataPoints());
 
     foreach ($data_points as $data_point) {
-      switch ($data_point) {
-        case 'email': $data['email'] = $fb_profile->getEmail();
-          break;
-
-        case 'name': $data['name'] = $fb_profile->getName();
-          break;
-
-        default: $this->loggerFactory->get($this->userManager->getPluginId())->error(
+      if ($fb_profile->toArray()[$data_point]) {
+        $data[$data_point] = $fb_profile->toArray()[$data_point];
+      }
+      else {
+        $this->loggerFactory->get($this->userManager->getPluginId())->error(
           'Failed to fetch Data Point. Invalid Data Point: @$data_point', ['@$data_point' => $data_point]);
       }
     }

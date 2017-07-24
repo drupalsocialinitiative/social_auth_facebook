@@ -5,12 +5,14 @@ namespace Drupal\social_auth_facebook\Plugin\Network;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Routing\RequestContext;
 use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
 use Drupal\social_auth_facebook\Settings\FacebookAuthSettings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use League\OAuth2\Client\Provider\Facebook;
+use Drupal\Core\Site\Settings;
 
 /**
  * Defines a Network Plugin for Social Auth Facebook.
@@ -56,7 +58,8 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('config.factory'),
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('router.request_context')
     );
   }
 
@@ -84,12 +87,14 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
                               array $plugin_definition,
                               EntityTypeManagerInterface $entity_type_manager,
                               ConfigFactoryInterface $config_factory,
-                              LoggerChannelFactoryInterface $logger_factory) {
+                              LoggerChannelFactoryInterface $logger_factory,
+                              RequestContext $requestContext) {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory);
 
     $this->dataHandler = $data_handler;
     $this->loggerFactory = $logger_factory;
+    $this->requestContext =$requestContext;
   }
 
   /**
@@ -107,16 +112,19 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
     if (!class_exists($class_name)) {
       throw new SocialApiException(sprintf('The Facebook Library for the league oAuth not found. Class: %s.', $class_name));
     }
-    /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
+    /* @var \Drupal\social_auth_google\Settings\GoogleAuthSettings $settings */
     $settings = $this->settings;
+    // Proxy configuration data for outward proxy.
+    $proxyUrl =  Settings::get("http_client_config")["proxy"]["http"];
 
     if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
       $league_settings = [
         'clientId'          => $settings->getAppId(),
         'clientSecret'      => $settings->getAppSecret(),
-        'redirectUri'       => $GLOBALS['base_url'] . '/user/login/facebook/callback',
+        'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
         'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
+        'proxy'             => $proxyUrl,
       ];
 
       return new Facebook($league_settings);
