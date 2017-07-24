@@ -5,12 +5,14 @@ namespace Drupal\social_auth_facebook\Plugin\Network;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler;
+use Drupal\Core\Routing\RequestContext;
+use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
 use Drupal\social_auth_facebook\Settings\FacebookAuthSettings;
-use Facebook\Facebook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use League\OAuth2\Client\Provider\Facebook;
+use Drupal\Core\Site\Settings;
 
 /**
  * Defines a Network Plugin for Social Auth Facebook.
@@ -32,11 +34,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
   /**
-   * The Facebook Persistent Data Handler.
+   * The Social Auth Data Handler.
    *
-   * @var \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler
+   * @var \Drupal\social_auth\SocialAuthDataHandler
    */
-  protected $persistentDataHandler;
+  protected $dataHandler;
 
   /**
    * The logger factory.
@@ -50,21 +52,22 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('social_auth_facebook.persistent_data_handler'),
+      $container->get('social_auth.social_auth_data_handler'),
       $configuration,
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('config.factory'),
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('router.request_context')
     );
   }
 
   /**
    * FacebookAuth constructor.
    *
-   * @param \Drupal\social_auth_facebook\FacebookAuthPersistentDataHandler $persistent_data_handler
-   *   The persistent data handler.
+   * @param \Drupal\social_auth\SocialAuthDataHandler $data_handler
+   *   The data handler.
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -78,24 +81,26 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    */
-  public function __construct(FacebookAuthPersistentDataHandler $persistent_data_handler,
+  public function __construct(SocialAuthDataHandler $data_handler,
                               array $configuration,
                               $plugin_id,
                               array $plugin_definition,
                               EntityTypeManagerInterface $entity_type_manager,
                               ConfigFactoryInterface $config_factory,
-                              LoggerChannelFactoryInterface $logger_factory) {
+                              LoggerChannelFactoryInterface $logger_factory,
+                              RequestContext $requestContext) {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory);
 
-    $this->persistentDataHandler = $persistent_data_handler;
+    $this->dataHandler = $data_handler;
     $this->loggerFactory = $logger_factory;
+    $this->requestContext =$requestContext;
   }
 
   /**
    * Sets the underlying SDK library.
    *
-   * @return \Facebook\Facebook
+   * @return \League\OAuth2\Client\Provider\Facebook
    *   The initialized 3rd party library instance.
    *
    * @throws SocialApiException
@@ -103,26 +108,27 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    */
   protected function initSdk() {
 
-    $class_name = '\Facebook\Facebook';
+    $class_name = '\League\OAuth2\Client\Provider\Facebook';
     if (!class_exists($class_name)) {
-      throw new SocialApiException(sprintf('The PHP SDK for Facebook could not be found. Class: %s.', $class_name));
+      throw new SocialApiException(sprintf('The Facebook Library for the league oAuth not found. Class: %s.', $class_name));
     }
-    /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
+    /* @var \Drupal\social_auth_google\Settings\GoogleAuthSettings $settings */
     $settings = $this->settings;
+    // Proxy configuration data for outward proxy.
+    $proxyUrl =  Settings::get("http_client_config")["proxy"]["http"];
 
     if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
-      $facebook_settings = [
-        'app_id' => $settings->getAppId(),
-        'app_secret' => $settings->getAppSecret(),
-        'default_graph_version' => 'v' . $settings->getGraphVersion(),
-        'persistent_data_handler' => $this->persistentDataHandler,
-        'http_client_handler' => $this->getHttpClient(),
+      $league_settings = [
+        'clientId'          => $settings->getAppId(),
+        'clientSecret'      => $settings->getAppSecret(),
+        'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
+        'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
+        'proxy'             => $proxyUrl,
       ];
 
-      return new Facebook($facebook_settings);
+      return new Facebook($league_settings);
     }
-
     return FALSE;
   }
 
@@ -149,30 +155,6 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
     }
 
     return TRUE;
-  }
-
-  /**
-   * Returns HTTP client to be used with Facebook SDK.
-   *
-   * Facebook SDK v5 uses the following autodetect logic for determining the
-   * HTTP client:
-   * 1. If cURL extension is loaded, use it.
-   * 2. If cURL was not loaded but Guzzle is found, use it.
-   * 3. Fallback to FacebookStreamHttpClient.
-   *
-   * Drupal 8 ships with Guzzle v6 but Facebook SDK v5 works only
-   * with Guzzle v5. Therefore we need to change the autodetect logic
-   * so that we're first using cURL and if that is not available, we
-   * fallback directly to FacebookStreamHttpClient.
-   *
-   * @return string
-   *   Client that should be used with Facebook SDK.
-   */
-  protected function getHttpClient() {
-    if (extension_loaded('curl')) {
-      return 'curl';
-    }
-    return 'stream';
   }
 
 }

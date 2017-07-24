@@ -11,7 +11,7 @@
         "source": "http://cgit.drupalcode.org/social_auth_facebook"
     },
     "require" : {
-        "facebook/graph-sdk" : "~5.0"
+        "league/oauth2-facebook": "^2.0"
     },
     "authors": [
         {
@@ -21,6 +21,10 @@
         {
             "name": "Utkarsh Dixit (denutkarsh)",
             "email": "downloadplaza97@gmail.com"
+        },
+        {
+            "name": "Himanshu Dixit (himanshu-dixit)",
+            "email": "hudixt@gmail.com"
         }
     ]
 }

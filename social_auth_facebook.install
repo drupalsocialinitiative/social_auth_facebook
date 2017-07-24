@@ -11,8 +11,9 @@ use Drupal\social_auth\Controller\SocialAuthController;
 /**
  * Implements hook_requirements().
  *
- * Checks that a compatible version of Facebook Graph SDK has been installed
- * with Composer. Check installation instructions from the README.txt.
+ * Checks that a compatible version of oAuth2 Facebook library for the
+ * leagueoAuthclient with Composer. Check installation instructions
+ * from the README.txt.
  */
 function social_auth_facebook_requirements($phase) {
 
@@ -22,7 +23,7 @@ function social_auth_facebook_requirements($phase) {
   \Drupal::service('module_installer')->install(['social_api']);
 
   if ($phase == 'install') {
-    $requirements = SocialApiImplementerInstaller::checkLibrary('social_auth_facebook', 'Social Auth Facebook', 'facebook/graph-sdk', 5.0, 6.0);
+    $requirements = SocialApiImplementerInstaller::checkLibrary('social_auth_facebook', 'Social Auth Facebook', 'league/oauth2-facebook', 2.0, 3.0);
   }
 
   return $requirements;

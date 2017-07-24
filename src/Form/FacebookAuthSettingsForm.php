@@ -107,6 +107,13 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
       '#description' => $this->t('Copy the API Version of your Facebook App here. This value can be found from your App Dashboard. More information on API versions can be found at <a href="@facebook-changelog">Facebook Platform Changelog</a>', ['@facebook-changelog' => 'https://developers.facebook.com/docs/apps/changelog']),
     ];
 
+    $form['fb_settings']['data_points'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Data Points To Be Collected'),
+      '#default_value' => 'name,email',
+      '#description' => $this->t('Define the data point to be stored in database, data points must be separated by comma.'),
+    ];
+
     $form['fb_settings']['oauth_redirect_url'] = [
       '#type' => 'textfield',
       '#disabled' => TRUE,
@@ -154,6 +161,7 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
       ->set('app_id', $values['app_id'])
       ->set('app_secret', $values['app_secret'])
       ->set('graph_version', $values['graph_version'])
+      ->set('data_points', $values['data_points'])
       ->save();
 
     parent::submitForm($form, $form_state);

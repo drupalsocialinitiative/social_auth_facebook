@@ -38,6 +38,13 @@ class FacebookAuthSettings extends SettingsBase implements FacebookAuthSettingsI
   protected $defaultToken;
 
   /**
+   * The redirect URL for social_auth implmeneter.
+   *
+   * @var string
+   */
+  protected $oauthRedirectUrl;
+
+  /**
    * {@inheritdoc}
    */
   public function getAppId() {
