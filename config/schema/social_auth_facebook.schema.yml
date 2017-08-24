@@ -9,5 +9,5 @@ social_auth_facebook.settings:
       type: string
       label: 'App Secret'
     graph_version:
-      type: string
+      type: float
       label: 'Facebook Graph API version'
