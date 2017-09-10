@@ -100,9 +100,7 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
     ];
 
     $form['fb_settings']['graph_version'] = [
-      '#type' => 'number',
-      '#min' => 0,
-      '#step' => 'any',
+      '#type' => 'textfield',
       '#required' => TRUE,
       '#title' => $this->t('Facebook Graph API version'),
       '#default_value' => $config->get('graph_version'),
