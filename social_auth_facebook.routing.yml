@@ -3,7 +3,7 @@ social_auth_facebook.redirect_to_fb:
   defaults:
     _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::redirectToFb'
   requirements:
-    _role: 'anonymous'
+    _access: 'TRUE'
   options:
     no_cache: TRUE
 
@@ -12,7 +12,7 @@ social_auth_facebook.return_from_fb:
   defaults:
     _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::returnFromFb'
   requirements:
-    _role: 'anonymous'
+    _access: 'TRUE'
   options:
     no_cache: TRUE
 
