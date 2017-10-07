@@ -76,7 +76,12 @@ class FacebookAuthController extends ControllerBase {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   Used for logging errors.
    */
-  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, FacebookAuthManager $facebook_manager, RequestStack $request, SocialAuthDataHandler $social_auth_data_handler, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(NetworkManager $network_manager,
+                              SocialAuthUserManager $user_manager,
+                              FacebookAuthManager $facebook_manager,
+                              RequestStack $request,
+                              SocialAuthDataHandler $social_auth_data_handler,
+                              LoggerChannelFactoryInterface $logger_factory) {
 
     $this->networkManager = $network_manager;
     $this->userManager = $user_manager;
@@ -90,8 +95,6 @@ class FacebookAuthController extends ControllerBase {
 
     // Sets the session keys to nullify if user could not logged in.
     $this->userManager->setSessionKeysToNullify(['access_token', 'oauth2state']);
-
-    $this->setting = $this->config('social_auth_facebook.settings');
   }
 
   /**
@@ -121,6 +124,13 @@ class FacebookAuthController extends ControllerBase {
     if (!$facebook) {
       drupal_set_message($this->t('Social Auth Facebook not configured properly. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
+    }
+
+    // Destination parameter specified in url.
+    $destination = $this->request->getCurrentRequest()->get('destination');
+    // If destination parameter is set, save it.
+    if ($destination) {
+      $this->userManager->setDestination($destination);
     }
 
     // Facebook service was returned, inject it to $fbManager.
@@ -167,7 +177,7 @@ class FacebookAuthController extends ControllerBase {
 
     if (empty($retrievedState) || ($retrievedState !== $state)) {
       $this->userManager->nullifySessionKeys();
-      drupal_set_message($this->t('Facebook login failed. Unvalid oAuth2 State.'), 'error');
+      drupal_set_message($this->t('Facebook login failed. Unvalid OAuth2 State.'), 'error');
       return $this->redirect('user.login');
     }
 
@@ -188,8 +198,7 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    // Store the data mapped with data points define is
-    // social_auth_facebook settings.
+    // Store the data mapped with data points define in settings.
     $data = $fb_profile->toArray();
 
     if (!$this->userManager->checkIfUserExists($fb_profile->getId())) {

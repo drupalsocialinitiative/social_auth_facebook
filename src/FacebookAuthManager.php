@@ -115,10 +115,7 @@ class FacebookAuthManager extends OAuth2Manager {
   }
 
   /**
-   * Authenticates the users by using the access token.
-   *
-   * @return $this
-   *   The current object.
+   * Authenticates the user.
    */
   public function authenticate() {
     $this->token = $this->client->getLongLivedAccessToken($this->client->getAccessToken('authorization_code',
