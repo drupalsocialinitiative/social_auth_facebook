@@ -1,0 +1,57 @@
+<?php
+
+namespace Drupal\Tests\social_auth_facebook\Functional;
+
+use Drupal\social_api\SocialApiSettingsFormBase;
+
+/**
+ * Test Social Auth Facebook module functionality of settings' forms.
+ *
+ * @group social_auth
+ *
+ * @ingroup social_auth_facebook
+ */
+class SocialAuthFacebookSettingsFormTest extends SocialApiSettingsFormBase {
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = ['social_auth_facebook'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    $this->module = 'social_auth_facebook';
+    $this->socialNetwork = 'facebook';
+    $this->moduleType = 'social-auth';
+
+    parent::setUp();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function testIsAvailableInIntegrationList() {
+    $this->fields = ['app_id', 'app_secret', 'graph_version'];
+
+    parent::testIsAvailableInIntegrationList();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function testSettingsFormSubmission() {
+    $this->edit = [
+      'app_id' => 'app_id',
+      'app_secret' => 'app_secret',
+      'graph_version' => '2.10',
+      'scopes' => 'scopes',
+      'api_calls' => 'api_calls',
+    ];
+
+    parent::testSettingsFormSubmission();
+  }
+
+}
