@@ -44,11 +44,9 @@ class SocialAuthFacebookSettingsFormTest extends SocialApiSettingsFormBase {
    */
   public function testSettingsFormSubmission() {
     $this->edit = [
-      'app_id' => 'app_id',
-      'app_secret' => 'app_secret',
+      'app_id' => $this->randomString(10),
+      'app_secret' => $this->randomString(10),
       'graph_version' => '2.10',
-      'scopes' => 'scopes',
-      'api_calls' => 'api_calls',
     ];
 
     parent::testSettingsFormSubmission();
