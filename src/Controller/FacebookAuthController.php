@@ -202,7 +202,8 @@ class FacebookAuthController extends ControllerBase {
     $data = $fb_profile->toArray();
 
     if (!$this->userManager->checkIfUserExists($fb_profile->getId())) {
-      $api_calls = explode(PHP_EOL, $this->facebookManager->getApiCalls());
+      $api_calls_string = $this->facebookManager->getApiCalls();
+      $api_calls = $api_calls_string ? explode(PHP_EOL, $api_calls_string) : [];
 
       // Iterate through api calls define in settings and try to retrieve them.
       foreach ($api_calls as $api_call) {
