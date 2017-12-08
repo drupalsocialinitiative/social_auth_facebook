@@ -152,10 +152,14 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (!preg_match('/^[2-9]\.[0-9]{1,2}$/', $form_state->getValue('graph_version'))) {
+    $graph_version = $form_state->getValue('graph_version');
+    if ($graph_version[0] === 'v') {
+      $graph_version = substr($graph_version, 1);
+      $form_state->setValue('graph_version', $graph_version);
+    }
+    if (!preg_match('/^[2-9]\.[0-9]{1,2}$/', $graph_version)) {
       $form_state->setErrorByName('graph_version', $this->t('Invalid API version. The syntax for API version is for example <em>v2.8</em>'));
     }
-
     parent::validateForm($form, $form_state);
   }
 
