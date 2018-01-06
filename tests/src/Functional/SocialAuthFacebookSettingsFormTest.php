@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\social_auth_facebook\Functional;
 
-use Drupal\social_api\SocialApiSettingsFormBase;
+use Drupal\social_api\SocialApiSettingsFormBaseTest;
 
 /**
  * Test Social Auth Facebook module functionality of settings' forms.
@@ -11,7 +11,7 @@ use Drupal\social_api\SocialApiSettingsFormBase;
  *
  * @ingroup social_auth_facebook
  */
-class SocialAuthFacebookSettingsFormTest extends SocialApiSettingsFormBase {
+class SocialAuthFacebookSettingsFormTest extends SocialApiSettingsFormBaseTest {
   /**
    * Modules to enable.
    *
