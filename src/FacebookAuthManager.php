@@ -140,7 +140,7 @@ class FacebookAuthManager extends OAuth2Manager {
    *   Absolute Facebook login URL where user will be redirected.
    */
   public function getFbLoginUrl() {
-    $scopes = [];
+    $scopes = ['email', 'public_profile'];
 
     $facebook_scopes = explode(PHP_EOL, $this->getScopes());
     foreach ($facebook_scopes as $scope) {
