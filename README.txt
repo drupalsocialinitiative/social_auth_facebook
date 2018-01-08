@@ -1,16 +1,26 @@
-SOCIAL AUTH FACEBOOK MODULE
+CONTENTS OF THIS FILE
+---------------------
+
+ * Introduction
+ * Requirements
+ * Installation
+ * Configuration
+ * How it works
+ * Support requests
+ * Maintainers
 
 INTRODUCTION
 ------------
 
-Social Auth Facebook Module is a Facebook Authentication integration for Drupal.
-It is based on the Social Auth and Social API projects, as well as in the
-Simple FB Connect module.
+Social Auth Facebook is a Facebook authentication integration for Drupal. It is
+based on the Social Auth and Social API projects, as well as in the Simple FB
+Connect module.
 
 It adds to the site:
-* A new url: /user/login/facebook
-* A settings form on /admin/config/social-api/social-auth/facebook page
-* A Facebook Logo in the Social Auth Login block.
+
+ * A new url: /user/login/facebook
+ * A settings form on /admin/config/social-api/social-auth/facebook page
+ * A Facebook logo in the Social Auth Login block.
 
 REQUIREMENTS
 ------------
@@ -34,21 +44,44 @@ Drupal site. If we have an existing Drupal user with the same email address
 provided by Facebook, that user is logged in. Otherwise a new Drupal user is
 created.
 
-SETUP
------
+INSTALLATION
+------------
 
-Installation instructions for Drupal 8 can be found at
-https://www.drupal.org/node/2642974
+ * Run composer to install the dependencies.
+   composer require "drupal/social_auth_facebook:~2.0"
 
+ * Install the dependencies: Social API and Social Auth.
+
+ * Install as you would normally install a contributed Drupal module. See:
+   https://drupal.org/documentation/install/modules-themes/modules-8
+   for further information.
+
+CONFIGURATION
+-------------
+
+ * Add your Facebook app OAuth2 information in Configuration »
+   User Authentication » Facebook.
+
+ * Place a Social Auth Login block in Structure » Block Layout.
+
+ * If you already have a Social Auth Login block in the site, rebuild the cache.
 
 SUPPORT REQUESTS
 ----------------
 
-Before posting a support request, carefully read the installation
-instructions provided in module documentation page.
-
 Before posting a support request, check Recent log entries at
 admin/reports/dblog
 
+Once you have done this, you can post a support request at module issue queue:
+https://www.drupal.org/project/issues/social_auth_facebook
+
 When posting a support request, please inform if you were able to see any errors
 in Recent log entries.
+
+MAINTAINERS
+-----------
+
+Current Maintainers:
+
+ * Getulio Valentin Sánchez (gvso) - https://www.drupal.org/u/gvso
+ * Himanshu Dixit (himanshu-dixit) - https://www.drupal.org/u/himanshu-dixit
