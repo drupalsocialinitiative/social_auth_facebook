@@ -52,7 +52,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('social_auth.social_auth_data_handler'),
+      $container->get('social_auth.data_handler'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -125,6 +125,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
     if ($this->validateConfig($settings)) {
       // Proxy configuration data for outward proxy.
       $proxyUrl = $this->siteSettings->get("http_client_config")["proxy"]["http"];
+
       // All these settings are mandatory.
       if ($proxyUrl) {
         $league_settings = [

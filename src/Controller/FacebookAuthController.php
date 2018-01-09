@@ -54,13 +54,6 @@ class FacebookAuthController extends ControllerBase {
   private $dataHandler;
 
   /**
-   * The logger channel.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
-  protected $loggerFactory;
-
-  /**
    * FacebookAuthController constructor.
    *
    * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
@@ -73,22 +66,18 @@ class FacebookAuthController extends ControllerBase {
    *   Used to access GET parameters.
    * @param \Drupal\social_auth\SocialAuthDataHandler $social_auth_data_handler
    *   SocialAuthDataHandler object.
-   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
-   *   Used for logging errors.
    */
   public function __construct(NetworkManager $network_manager,
                               SocialAuthUserManager $user_manager,
                               FacebookAuthManager $facebook_manager,
                               RequestStack $request,
-                              SocialAuthDataHandler $social_auth_data_handler,
-                              LoggerChannelFactoryInterface $logger_factory) {
+                              SocialAuthDataHandler $social_auth_data_handler) {
 
     $this->networkManager = $network_manager;
     $this->userManager = $user_manager;
     $this->facebookManager = $facebook_manager;
     $this->request = $request;
     $this->dataHandler = $social_auth_data_handler;
-    $this->loggerFactory = $logger_factory;
 
     // Sets the plugin id.
     $this->userManager->setPluginId('social_auth_facebook');
@@ -106,7 +95,7 @@ class FacebookAuthController extends ControllerBase {
       $container->get('social_auth.user_manager'),
       $container->get('social_auth_facebook.manager'),
       $container->get('request_stack'),
-      $container->get('social_auth.social_auth_data_handler'),
+      $container->get('social_auth.data_handler'),
       $container->get('logger.factory')
     );
   }
