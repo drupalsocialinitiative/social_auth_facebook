@@ -1,6 +1,6 @@
 name: Social Auth Facebook
 type: module
-description: 'Allows users to authenticate with their Facebook accounts.'
+description: 'Social Auth integration for Facebook.'
 package: Social
 core: 8.x
 configure: social_auth_facebook.settings_form
