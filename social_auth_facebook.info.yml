@@ -5,4 +5,4 @@ package: Social
 core: 8.x
 configure: social_auth_facebook.settings_form
 dependencies:
-  - social_auth (>= 8.x-2.x)
+  - social_auth:social_auth (>= 8.x-2.x)
