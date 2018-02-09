@@ -13,7 +13,7 @@ social_auth_facebook.settings:
       label: 'Facebook Graph API version'
     scopes:
       type: string
-      label: 'Scopes to make API calls'
-    api_calls:
+      label: 'Scopes to be requested'
+    endpoints:
       type: string
-      label: 'API calls that will retrieve data'
+      label: 'API Endpoints to be requested'

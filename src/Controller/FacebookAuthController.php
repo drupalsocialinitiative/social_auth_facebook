@@ -3,15 +3,13 @@
 namespace Drupal\social_auth_facebook\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\social_api\Plugin\NetworkManager;
+use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_auth\SocialAuthUserManager;
 use Drupal\social_auth_facebook\FacebookAuthManager;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Routing\TrustedRedirectResponse;
-use Drupal\social_auth\SocialAuthDataHandler;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Returns responses for Simple FB Connect module routes.
@@ -128,7 +126,7 @@ class FacebookAuthController extends ControllerBase {
     // Generates the URL where the user will be redirected for FB login.
     // If the user did not have email permission granted on previous attempt,
     // we use the re-request URL requesting only the email address.
-    $fb_login_url = $this->facebookManager->getFbLoginUrl();
+    $fb_login_url = $this->facebookManager->getAuthorizationUrl();
 
     $state = $this->facebookManager->getState();
 
@@ -187,23 +185,11 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    // Store the data mapped with data points define in settings.
-    $data = $fb_profile->toArray();
-
-    if (!$this->userManager->checkIfUserExists($fb_profile->getId())) {
-      $api_calls_string = $this->facebookManager->getApiCalls();
-      $api_calls = $api_calls_string ? explode(PHP_EOL, $api_calls_string) : [];
-
-      // Iterate through api calls define in settings and try to retrieve them.
-      foreach ($api_calls as $api_call) {
-        $api_request = explode('|', $api_call);
-        $call = $this->facebookManager->getExtraDetails($api_request[0], $api_request[1]);
-        array_push($data, $call);
-      }
-    }
+    // Gets (or not) extra initial data.
+    $data = $this->userManager->checkIfUserExists($fb_profile->getId()) ? NULL : $this->facebookManager->getExtraDetails();
 
     // If user information could be retrieved.
-    return $this->userManager->authenticateUser($fb_profile->getName(), $email, $fb_profile->getId(), $this->facebookManager->getAccessToken(), $fb_profile->getPictureUrl(), json_encode($data));
+    return $this->userManager->authenticateUser($fb_profile->getName(), $email, $fb_profile->getId(), $this->facebookManager->getAccessToken(), $fb_profile->getPictureUrl(), $data);
   }
 
 }

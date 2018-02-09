@@ -48,6 +48,20 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   protected $loggerFactory;
 
   /**
+   * The request context object.
+   *
+   * @var \Drupal\Core\Routing\RequestContext
+   */
+  protected $requestContext;
+
+  /**
+   * The site settings.
+   *
+   * @var \Drupal\Core\Site\Settings
+   */
+  protected $siteSettings;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -117,32 +131,25 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
 
     $class_name = '\League\OAuth2\Client\Provider\Facebook';
     if (!class_exists($class_name)) {
-      throw new SocialApiException(sprintf('The Facebook Library for the league oAuth not found. Class: %s.', $class_name));
+      throw new SocialApiException(sprintf('The PHP League OAuth2 library for Facebook not found. Class: %s.', $class_name));
     }
     /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
     $settings = $this->settings;
 
     if ($this->validateConfig($settings)) {
-      // Proxy configuration data for outward proxy.
-      $proxyUrl = $this->siteSettings->get("http_client_config")["proxy"]["http"];
-
       // All these settings are mandatory.
+      $league_settings = [
+        'clientId'          => $settings->getAppId(),
+        'clientSecret'      => $settings->getAppSecret(),
+        'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
+        'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
+      ];
+
+      // Proxy configuration data for outward proxy.
+      $proxyUrl = $this->siteSettings->get('http_client_config')['proxy']['http'];
       if ($proxyUrl) {
         $league_settings = [
-          'clientId'          => $settings->getAppId(),
-          'clientSecret'      => $settings->getAppSecret(),
-          'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
-          'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
-          'proxy'             => $proxyUrl,
-          'verify'            => FALSE,
-        ];
-      }
-      else {
-        $league_settings = [
-          'clientId'          => $settings->getAppId(),
-          'clientSecret'      => $settings->getAppSecret(),
-          'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
-          'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
+          'proxy' => $proxyUrl,
         ];
       }
 
