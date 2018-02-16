@@ -49,13 +49,13 @@ class FacebookAuthManager extends OAuth2Manager {
   public function getAuthorizationUrl() {
     $scopes = ['email', 'public_profile'];
 
-    $facebook_scopes = $this->getScopes();
-    if ($facebook_scopes) {
-      if (strpos($facebook_scopes, ',')) {
-        $scopes = array_merge($scopes, explode(',', $facebook_scopes));
+    $extra_scopes = $this->getScopes();
+    if ($extra_scopes) {
+      if (strpos($extra_scopes, ',')) {
+        $scopes = array_merge($scopes, explode(',', $extra_scopes));
       }
       else {
-        $scopes[] = $facebook_scopes;
+        $scopes[] = $extra_scopes;
       }
     }
 
@@ -63,30 +63,6 @@ class FacebookAuthManager extends OAuth2Manager {
     return $this->client->getAuthorizationUrl([
       'scope' => $scopes,
     ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getExtraDetails() {
-    $endpoints = $this->getEndPoints();
-
-    // Store the data mapped with endpoints define in settings.
-    $data = [];
-
-    if ($endpoints) {
-      // Iterate through api calls define in settings and retrieve them.
-      foreach (explode(PHP_EOL, $endpoints) as $endpoint) {
-        // Endpoint is set as path/to/endpoint|name.
-        $parts = explode('|', $endpoint);
-        $call[$parts[1]] = $this->requestEndPoint($parts[0]);
-        array_push($data, $call);
-      }
-
-      return json_encode($data);
-    }
-
-    return NULL;
   }
 
   /**
