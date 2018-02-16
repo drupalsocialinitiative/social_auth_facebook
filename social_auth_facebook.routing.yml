@@ -3,6 +3,7 @@ social_auth_facebook.redirect_to_fb:
   defaults:
     _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::redirectToFb'
   requirements:
+    # Anonymous users can log in, but authenticated users can also associate a new provider.
     _access: 'TRUE'
   options:
     no_cache: TRUE
@@ -12,6 +13,7 @@ social_auth_facebook.return_from_fb:
   defaults:
     _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::returnFromFb'
   requirements:
+    # Anonymous users can log in, but authenticated users can also associate a new provider.
     _access: 'TRUE'
   options:
     no_cache: TRUE
