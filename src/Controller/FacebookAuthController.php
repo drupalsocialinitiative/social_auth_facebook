@@ -174,22 +174,23 @@ class FacebookAuthController extends ControllerBase {
     $this->facebookManager->setClient($facebook)->authenticate();
 
     // Gets user's FB profile from Facebook API.
-    if (!$fb_profile = $this->facebookManager->getUserInfo()) {
+    /* @var \League\OAuth2\Client\Provider\FacebookUser $profile */
+    if (!$profile = $this->facebookManager->getUserInfo()) {
       drupal_set_message($this->t('Facebook login failed, could not load Facebook profile. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 
     // Gets user's email from the FB profile.
-    if (!$email = $this->facebookManager->getUserInfo()->getEmail()) {
+    if (!$email = $profile->getEmail()) {
       drupal_set_message($this->t('Facebook login failed. This site requires permission to get your email address.'), 'error');
       return $this->redirect('user.login');
     }
 
     // Gets (or not) extra initial data.
-    $data = $this->userManager->checkIfUserExists($fb_profile->getId()) ? NULL : $this->facebookManager->getExtraDetails();
+    $data = $this->userManager->checkIfUserExists($profile->getId()) ? NULL : $this->facebookManager->getExtraDetails();
 
     // If user information could be retrieved.
-    return $this->userManager->authenticateUser($fb_profile->getName(), $email, $fb_profile->getId(), $this->facebookManager->getAccessToken(), $fb_profile->getPictureUrl(), $data);
+    return $this->userManager->authenticateUser($profile->getName(), $email, $profile->getId(), $this->facebookManager->getAccessToken(), $profile->getPictureUrl(), $data);
   }
 
 }
