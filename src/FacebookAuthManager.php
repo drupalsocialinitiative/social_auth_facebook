@@ -86,5 +86,37 @@ class FacebookAuthManager extends OAuth2Manager {
   public function getState() {
     return $this->client->getState();
   }
+  
+    /**
+     * Request and end point.
+     *
+     * @param string $path
+     *   The path or url to request.
+     *
+     * @return array|mixed
+     *   Data returned by provider.
+     */
+    public function requestEndPoint($path) {
+        return null;
+    }
 
+    /**
+     * Returns the authorization URL where user will be redirected.
+     *
+     * @return string|mixed
+     *   Absolute authorization URL.
+     */
+    public function getAuthorizationUrl() {
+        return null;
+    }
+
+    /**
+     * Returns OAuth2 state.
+     *
+     * @return string
+     *   The OAuth2 state.
+     */
+    public function getState() {
+        return '';
+    }
 }
