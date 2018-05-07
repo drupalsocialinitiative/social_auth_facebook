@@ -123,9 +123,7 @@ class FacebookAuthController extends ControllerBase {
     // Facebook service was returned, inject it to $fbManager.
     $this->facebookManager->setClient($facebook);
 
-    // Generates the URL where the user will be redirected for FB login.
-    // If the user did not have email permission granted on previous attempt,
-    // we use the re-request URL requesting only the email address.
+    // Generates the URL where the user will be redirected for authentication.
     $fb_login_url = $this->facebookManager->getAuthorizationUrl();
 
     $state = $this->facebookManager->getState();
@@ -151,7 +149,7 @@ class FacebookAuthController extends ControllerBase {
     /* @var \League\OAuth2\Client\Provider\Facebook false $facebook */
     $facebook = $this->networkManager->createInstance('social_auth_facebook')->getSdk();
 
-    // If facebook client could not be obtained.
+    // If Facebook client could not be obtained.
     if (!$facebook) {
       drupal_set_message($this->t('Social Auth Facebook not configured properly. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
@@ -168,10 +166,10 @@ class FacebookAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
+    $this->facebookManager->setClient($facebook)->authenticate();
+
     // Saves access token to session.
     $this->dataHandler->set('access_token', $this->facebookManager->getAccessToken());
-
-    $this->facebookManager->setClient($facebook)->authenticate();
 
     // Gets user's FB profile from Facebook API.
     /* @var \League\OAuth2\Client\Provider\FacebookUser $profile */
