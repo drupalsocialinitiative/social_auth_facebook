@@ -1,7 +1,7 @@
 social_auth_facebook.redirect_to_fb:
   path: 'user/login/facebook'
   defaults:
-    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::redirectToFb'
+    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::redirectToProvider'
   requirements:
     # Anonymous users can log in, but authenticated users can also associate a new provider.
     _access: 'TRUE'
@@ -11,7 +11,7 @@ social_auth_facebook.redirect_to_fb:
 social_auth_facebook.return_from_fb:
   path: 'user/login/facebook/callback'
   defaults:
-    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::returnFromFb'
+    _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::callback'
   requirements:
     # Anonymous users can log in, but authenticated users can also associate a new provider.
     _access: 'TRUE'
