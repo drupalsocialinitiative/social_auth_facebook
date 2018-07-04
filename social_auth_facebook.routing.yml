@@ -8,7 +8,7 @@ social_auth_facebook.redirect_to_fb:
   options:
     no_cache: TRUE
 
-social_auth_facebook.return_from_fb:
+social_auth_facebook.callback:
   path: 'user/login/facebook/callback'
   defaults:
     _controller: '\Drupal\social_auth_facebook\Controller\FacebookAuthController::callback'
