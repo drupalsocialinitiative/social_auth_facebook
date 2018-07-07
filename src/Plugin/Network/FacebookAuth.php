@@ -121,8 +121,9 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
   /**
    * Sets the underlying SDK library.
    *
-   * @return \League\OAuth2\Client\Provider\Facebook
+   * @return \League\OAuth2\Client\Provider\Facebook|false
    *   The initialized 3rd party library instance.
+   *   False if library could not be initialized.
    *
    * @throws SocialApiException
    *   If the SDK library does not exist.
@@ -148,13 +149,12 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       // Proxy configuration data for outward proxy.
       $proxyUrl = $this->siteSettings->get('http_client_config')['proxy']['http'];
       if ($proxyUrl) {
-        $league_settings = [
-          'proxy' => $proxyUrl,
-        ];
+        $league_settings['proxy'] = $proxyUrl;
       }
 
       return new Facebook($league_settings);
     }
+
     return FALSE;
   }
 

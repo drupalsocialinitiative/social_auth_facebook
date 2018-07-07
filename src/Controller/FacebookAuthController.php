@@ -2,9 +2,7 @@
 
 namespace Drupal\social_auth_facebook\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\social_api\Plugin\NetworkManager;
 use Drupal\social_auth\Controller\SocialAuthOAuth2ControllerBase;
 use Drupal\social_auth\SocialAuthDataHandler;
