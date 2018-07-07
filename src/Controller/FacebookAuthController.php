@@ -76,6 +76,13 @@ class FacebookAuthController extends SocialAuthOAuth2ControllerBase {
     // If authentication was successful.
     if ($profile !== NULL) {
 
+      // Check for email.
+      if (!$email = $profile->getEmail()) {
+        $this->messenger->addError('Facebook authentication failed. This site requires permission to get your email address.');
+
+        return $this->redirect('user.login');
+      }
+
       // Gets (or not) extra initial data.
       $data = $this->userManager->checkIfUserExists($profile->getId()) ? NULL : $this->providerManager->getExtraDetails();
 
