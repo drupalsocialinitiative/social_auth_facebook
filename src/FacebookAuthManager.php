@@ -70,14 +70,11 @@ class FacebookAuthManager extends OAuth2Manager {
    */
   public function requestEndPoint($path) {
     $url = 'https://graph.facebook.com/' . 'v' . $this->settings->get('graph_version') . $path;
-
     $url .= '&access_token=' . $this->getAccessToken();
 
     $request = $this->client->getAuthenticatedRequest('GET', $url, $this->getAccessToken());
 
-    $response = $this->client->getResponse($request);
-
-    return $response->getBody()->getContents();
+    return $this->client->getParsedResponse($request);
   }
 
   /**

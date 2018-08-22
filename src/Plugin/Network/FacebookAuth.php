@@ -17,7 +17,7 @@ use Drupal\Core\Site\Settings;
 /**
  * Defines a Network Plugin for Social Auth Facebook.
  *
- * @package Drupal\simple_fb_connect\Plugin\Network
+ * @package Drupal\social_auth_facebook\Plugin\Network
  *
  * @Network(
  *   id = "social_auth_facebook",

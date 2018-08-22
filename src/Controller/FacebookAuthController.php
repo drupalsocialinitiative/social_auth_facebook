@@ -24,13 +24,13 @@ class FacebookAuthController extends OAuth2ControllerBase {
    * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
    *   Used to get an instance of social_auth_facebook network plugin.
    * @param \Drupal\social_auth\User\UserAuthenticator $user_authenticator
-   *   Manages user login/registration.
+   *   Used to manage user authentication/registration.
    * @param \Drupal\social_auth_facebook\FacebookAuthManager $facebook_manager
    *   Used to manage authentication methods.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request
    *   Used to access GET parameters.
    * @param \Drupal\social_auth\SocialAuthDataHandler $data_handler
-   *   SocialAuthDataHandler object.
+   *   The Social Auth Data handler.
    */
   public function __construct(MessengerInterface $messenger,
                               NetworkManager $network_manager,

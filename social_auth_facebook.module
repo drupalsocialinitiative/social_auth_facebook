@@ -14,10 +14,11 @@ function social_auth_facebook_help($route_name, RouteMatchInterface $route_match
   $output = '';
 
   switch ($route_name) {
-    case 'simple_fb_connect.settings_form':
+    case 'social_auth_facebook.settings_form':
       $output = '<h3>' . t('Configuration instructions') . '</h3>';
       $output .= '<p>';
-      $output .= t('Configuration instructions and other useful documentation can be found from <a href="@handbook-url">Simple FB Connect Handbook</a>.', ['@handbook-url' => 'https://www.drupal.org/node/2474731']);
+      $output .= t('Configuration instructions and other useful documentation can be found at the 
+                 <a href="@documentation">Social Auth Facebook installation instructions</a>.', ['@documentation' => 'https://www.drupal.org/node/2936560']);
       $output .= '</p>';
       break;
 
