@@ -6,7 +6,7 @@ use Drupal\social_auth\AuthManager\OAuth2Manager;
 use Drupal\Core\Config\ConfigFactory;
 
 /**
- * Contains all Simple FB Connect logic that is related to Facebook interaction.
+ * Contains all the logic for Facebook OAuth2 authentication.
  */
 class FacebookAuthManager extends OAuth2Manager {
 
