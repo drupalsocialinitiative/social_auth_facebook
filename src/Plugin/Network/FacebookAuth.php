@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Routing\RequestContext;
+use Drupal\Core\Url;
 use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
@@ -142,7 +143,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       $league_settings = [
         'clientId'          => $settings->getAppId(),
         'clientSecret'      => $settings->getAppSecret(),
-        'redirectUri'       => $this->requestContext->getCompleteBaseUrl() . '/user/login/facebook/callback',
+        'redirectUri'       => Url::fromRoute('social_auth_facebook.callback')->setAbsolute()->toString(TRUE)->getGeneratedUrl(),
         'graphApiVersion'   => 'v' . $settings->getGraphVersion(),
       ];
 

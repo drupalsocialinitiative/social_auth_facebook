@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Routing\RequestContext;
 use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\Core\Url;
 use Drupal\social_auth\Form\SocialAuthSettingsForm;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -112,7 +113,7 @@ class FacebookAuthSettingsForm extends SocialAuthSettingsForm {
       '#disabled' => TRUE,
       '#title' => $this->t('Valid OAuth redirect URIs'),
       '#description' => $this->t('Copy this value to <em>Valid OAuth redirect URIs</em> field of your Facebook App settings.'),
-      '#default_value' => $GLOBALS['base_url'] . '/user/login/facebook/callback',
+      '#default_value' => Url::fromRoute('social_auth_facebook.callback')->setAbsolute()->toString(),
     ];
 
     $form['fb_settings']['app_domains'] = [
