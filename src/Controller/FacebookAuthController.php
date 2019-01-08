@@ -77,7 +77,7 @@ class FacebookAuthController extends OAuth2ControllerBase {
     if ($profile !== NULL) {
 
       // Check for email.
-      if (!$email = $profile->getEmail()) {
+      if (!$profile->getEmail()) {
         $this->messenger->addError($this->t('Facebook authentication failed. This site requires permission to get your email address.'));
 
         return $this->redirect('user.login');
