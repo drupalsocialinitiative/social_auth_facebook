@@ -17,11 +17,10 @@ function social_auth_facebook_help($route_name, RouteMatchInterface $route_match
     case 'social_auth_facebook.settings_form':
       $output = '<h3>' . t('Configuration instructions') . '</h3>';
       $output .= '<p>';
-      $output .= t('Configuration instructions and other useful documentation can be found at the 
-                 <a href="@documentation">Social Auth Facebook installation instructions</a>.', ['@documentation' => 'https://www.drupal.org/node/2936560']);
+      $output .= t('Configuration instructions and other useful documentation can be found at the <a href="@doc-url">Social Auth Facebook documentation</a>.',
+        ['@doc-url' => 'https://www.drupal.org/docs/8/modules/social-api/social-api-2x/social-auth-2x/social-auth-facebook-2x-installation']);
       $output .= '</p>';
       break;
-
   }
 
   return $output;
