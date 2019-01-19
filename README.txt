@@ -51,7 +51,7 @@ INSTALLATION
 ------------
 
  * Run composer to install the dependencies.
-   composer require "drupal/social_auth_facebook:~2.0"
+   composer require "drupal/social_auth_facebook:^2.0"
 
  * Install the dependencies: Social API and Social Auth.
 
@@ -80,7 +80,7 @@ SUPPORT REQUESTS
 * Before posting a support request, carefully read the installation
    instructions provided in module documentation page.
 
- * Before posting a support request, check Recent log entries at
+ * Before posting a support request, check the Recent Llog entries at
    admin/reports/dblog
 
  * Once you have done this, you can post a support request at module issue
