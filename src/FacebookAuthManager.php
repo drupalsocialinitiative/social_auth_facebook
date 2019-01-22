@@ -76,7 +76,7 @@ class FacebookAuthManager extends OAuth2Manager {
   /**
    * {@inheritdoc}
    */
-  public function requestEndPoint($method, $path, $domain = NULL) {
+  public function requestEndPoint($method, $path, $domain = NULL, array $options = []) {
     if (!$domain) {
       $domain = 'https://graph.facebook.com';
     }
@@ -84,7 +84,7 @@ class FacebookAuthManager extends OAuth2Manager {
     $url = $domain . '/v' . $this->settings->get('graph_version') . $path;
     $url .= '&access_token=' . $this->getAccessToken();
 
-    $request = $this->client->getAuthenticatedRequest($method, $url, $this->getAccessToken());
+    $request = $this->client->getAuthenticatedRequest($method, $url, $this->getAccessToken(), $options);
 
     try {
       return $this->client->getParsedResponse($request);
