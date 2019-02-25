@@ -40,7 +40,7 @@ class FacebookAuthManager extends OAuth2Manager {
         ['code' => $_GET['code']])));
     }
     catch (\Exception $e) {
-      $this->loggerFactory->get('social_auth_google')
+      $this->loggerFactory->get('social_auth_facebook')
         ->error('There was an error during authentication. Exception: ' . $e->getMessage());
     }
   }
