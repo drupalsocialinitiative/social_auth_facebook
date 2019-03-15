@@ -5,29 +5,7 @@
  * Install, update, and uninstall functions for the Social Auth Facebook module.
  */
 
-use Drupal\social_api\Utility\SocialApiImplementerInstaller;
 use Drupal\social_auth\Controller\SocialAuthController;
-
-/**
- * Implements hook_requirements().
- *
- * Checks that a compatible version of PHP League OAuth2 Facebook library is
- * available. Check installation instructions in README.txt.
- */
-function social_auth_facebook_requirements($phase) {
-
-  $requirements = [];
-
-  // Social API should be installed at this point in order to check library.
-  \Drupal::service('module_installer')->install(['social_api']);
-
-  if ($phase == 'install') {
-    $requirements = SocialApiImplementerInstaller::checkLibrary('social_auth_facebook', 'Social Auth Facebook', 'league/oauth2-facebook', 2.0, 3.0);
-  }
-
-  return $requirements;
-
-}
 
 /**
  * Implements hook_install().

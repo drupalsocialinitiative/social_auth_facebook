@@ -11,7 +11,8 @@
         "source": "http://cgit.drupalcode.org/social_auth_facebook"
     },
     "require": {
-        "league/oauth2-facebook": "^2.0"
+        "league/oauth2-facebook": "^2.0",
+        "drupal/social_auth": "^2.0"
     },
     "authors": [
         {
