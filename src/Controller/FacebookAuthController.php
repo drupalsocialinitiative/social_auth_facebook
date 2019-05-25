@@ -70,9 +70,16 @@ class FacebookAuthController extends OAuth2ControllerBase {
    */
   public function callback() {
 
+    $request_query = $this->request->getCurrentRequest()->query;
+
     // Checks if authentication failed.
-    if ($this->request->getCurrentRequest()->query->has('error')) {
+    if ($request_query->has('error')) {
       $this->messenger->addError($this->t('You could not be authenticated.'));
+
+      $response = $this->userAuthenticator->dispatchAuthenticationError($request_query->get('error'));
+      if ($response) {
+        return $response;
+      }
 
       return $this->redirect('user.login');
     }
