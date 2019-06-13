@@ -34,7 +34,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    *   The initialized 3rd party library instance.
    *   False if library could not be initialized.
    *
-   * @throws SocialApiException
+   * @throws \Drupal\social_api\SocialApiException
    *   If the SDK library does not exist.
    */
   protected function initSdk() {
@@ -72,7 +72,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
    * Checks that module is configured.
    *
    * @param \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings
-   *   The Facebook auth settings.
+   *   The Social Auth Facebook settings.
    *
    * @return bool
    *   True if module is configured.
