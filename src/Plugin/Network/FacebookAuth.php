@@ -44,7 +44,7 @@ class FacebookAuth extends NetworkBase implements FacebookAuthInterface {
       throw new SocialApiException(sprintf('The PHP League OAuth2 library for Facebook not found. Class: %s.', $class_name));
     }
 
-    /* @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
+    /** @var \Drupal\social_auth_facebook\Settings\FacebookAuthSettings $settings */
     $settings = $this->settings;
 
     if ($this->validateConfig($settings)) {
